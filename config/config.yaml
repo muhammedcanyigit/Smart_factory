@@ -1,0 +1,31 @@
+# Proje konfigürasyonu — henüz kod bağlanmadı, Phase 2+ aşamalarında okunacak.
+
+random_seed: 42
+
+dataset:
+  size: small          # small | medium | large
+  presets:
+    small:
+      machines: 10
+      jobs: 50
+    medium:
+      machines: 20
+      jobs: 250
+    large:
+      machines: 50
+      jobs: 1000
+
+optimization:
+  solver: highs         # highs | gurobi
+  time_limit_seconds: 300
+  objective_weights:    # Phase 6'da gerekçelendirilecek, şimdilik placeholder
+    production_time: null
+    energy_cost: null
+    tardiness: null
+
+database:
+  url: "sqlite:///./data/factory.db"
+
+api:
+  host: "127.0.0.1"
+  port: 8000

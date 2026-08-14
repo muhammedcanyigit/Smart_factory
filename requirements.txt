@@ -1,0 +1,30 @@
+# Bu dosya henüz kod yazılmadığı için taslak niteliğindedir.
+# Sürüm numaraları, ilgili phase'e gelindiğinde sabitlenecektir (pinned).
+# Kaynak: docs/project-plan.md Bölüm 7 (Teknoloji Stack)
+
+# Data
+pandas
+numpy
+
+# Machine Learning
+scikit-learn
+# xgboost        # gerekirse Phase 10-11'de eklenecek
+# lightgbm       # gerekirse Phase 10-11'de eklenecek
+
+# Optimization
+pyomo
+highspy          # HiGHS solver Python binding'i
+# gurobipy       # opsiyonel, Gurobi lisansı varsa Phase 8'de eklenecek
+
+# Backend
+fastapi
+uvicorn
+
+# Visualization
+plotly
+
+# Testing
+pytest
+
+# Config
+pyyaml
