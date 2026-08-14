@@ -2,6 +2,15 @@
 
 Bu dosya, projede yapılan önemli değişikliklerin kaydını tutar. En yeni değişiklik en üstte. Format ve güncelleme kuralı için bkz. [CLAUDE.md](CLAUDE.md).
 
+## 2026-08-15 — Phase 2: Synthetic Data Generator (ilk çalışan kod)
+
+- `data_generator/schemas.py`: Machine, Job, Operation, EnergyPrice, Maintenance dataclass'ları + MachineStatus/MaintenanceType enum'ları.
+- `data_generator/generator.py`: seed=42 ile deterministik sentetik veri üretici. Kurallar: süre↑→enerji↑ (korelasyon test edildi: 0.82), yaş↑→bakım olasılığı↑, ürün-makine uyumluluğu (routing/template), saatlik time-of-use enerji fiyatı (peak/off-peak).
+- `config/config.yaml`'a `horizon_hours: 168` eklendi (7 günlük planlama ufku).
+- Doğrulama yapıldı: iki ayrı çalıştırma birebir aynı çıktıyı üretti (reproducibility), SMALL/MEDIUM/LARGE preset'lerinin üçü de hatasız çalıştı, hiçbir required_machine_type için uygun makine eksik değil, deadline < release_time gibi saçma durum yok.
+- `docs/dataset.md`'ye Operation.processing_time/energy_consumption'ın "nominal değer" olduğuna dair modelleme kararı eklendi (kod ile doküman tutarlılığı için).
+- Üretilen CSV'ler (`data/synthetic/*/`) .gitignore'da — reproducible oldukları için repoya commit edilmiyor, script ile yeniden üretilebiliyor.
+
 ## 2026-08-15 — Phase 1: Veri modeli tasarlandı
 
 - `docs/dataset.md` dolduruldu: Machine, Job, Operation, EnergyPrice, Maintenance entity'leri — alanlar, tipler, ilişkiler (ER diagram), temel iş kuralları.

@@ -1,9 +1,10 @@
-# Proje konfigürasyonu — henüz kod bağlanmadı, Phase 2+ aşamalarında okunacak.
+# Proje konfigürasyonu — Phase 2'den itibaren data_generator tarafından okunuyor.
 
 random_seed: 42
 
 dataset:
   size: small          # small | medium | large
+  horizon_hours: 168    # planlama ufku: 7 gün (168 saat) — Machine.available_until, EnergyPrice ufku bunu kullanır
   presets:
     small:
       machines: 10

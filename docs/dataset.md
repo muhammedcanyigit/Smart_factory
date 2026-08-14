@@ -46,6 +46,8 @@ Bir Job, sırayla yapılması gereken birden fazla Operation'dan oluşabilir (ö
 | processing_time | float | evet | İşlem süresi (saat). Phase 10'da ML ile tahmin edilecek alan — burada ilk etapta synthetic generator tarafından üretilir |
 | energy_consumption | float | evet | Enerji tüketimi (kWh). Phase 12'de ML ile tahmin edilecek alan |
 
+> **Modelleme kararı**: `processing_time` ve `energy_consumption`, o operasyonun **nominal (referans)** değerleridir — belirli bir makineye değil, `required_machine_type`'ın tipik/ortalama makinesine göre üretilir. Çünkü veri üretimi anında hangi operasyonun hangi *spesifik* makineye atanacağı henüz belli değildir; buna Phase 4-9'daki optimizasyon modeli karar verecektir. Gerçek/geçerli süre, atanan makinenin `efficiency` değerine göre optimizasyon ve simülasyon aşamasında ölçeklenir: `gerçek_süre = processing_time / atanan_makine.efficiency`. Bu, klasik job-shop scheduling literatüründeki "standart zaman + makine hız faktörü" yaklaşımıyla aynı mantıktır.
+
 ### EnergyPrice
 
 | Alan | Tip | Zorunlu | Açıklama |
