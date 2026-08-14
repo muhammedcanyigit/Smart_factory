@@ -2,6 +2,13 @@
 
 Bu dosya, projede yapılan önemli değişikliklerin kaydını tutar. En yeni değişiklik en üstte. Format ve güncelleme kuralı için bkz. [CLAUDE.md](CLAUDE.md).
 
+## 2026-08-15 — GitHub reposuna bağlandı
+
+- Local proje bağımsız bir git deposu haline getirildi (önceden `Smart_factory` klasörü, kullanıcının ev dizinine ait alakasız bir git reposunun içinde kalmıştı — buna dokunulmadı, ayrı repo kuruldu).
+- Uzak repo eklendi: `https://github.com/muhammedcanyigit/Smart_factory.git`.
+- GitHub'ın otomatik oluşturduğu placeholder README ile local README arasındaki merge çakışması, local (detaylı) içerik korunarak çözüldü.
+- İlk commit + merge commit `main` branch'ine push edildi.
+
 ## 2026-08-14 — Proje iskeleti oluşturuldu
 
 - Phase 0 tamamlandı: proje tanımı, terminoloji, mimari diyagram, yol haritası, dataset stratejisi, matematiksel problem tanımı, riskler → `docs/project-plan.md`.
