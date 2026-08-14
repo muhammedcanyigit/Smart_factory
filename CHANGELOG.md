@@ -2,6 +2,12 @@
 
 Bu dosya, projede yapılan önemli değişikliklerin kaydını tutar. En yeni değişiklik en üstte. Format ve güncelleme kuralı için bkz. [CLAUDE.md](CLAUDE.md).
 
+## 2026-08-15 — Phase 1: Veri modeli tasarlandı
+
+- `docs/dataset.md` dolduruldu: Machine, Job, Operation, EnergyPrice, Maintenance entity'leri — alanlar, tipler, ilişkiler (ER diagram), temel iş kuralları.
+- Job—Operation ilişkisine `sequence_no` eklendi (operasyonların sıralı yapılması gerekliliği için); Maintenance'a `maintenance_id` primary key eklendi.
+- Henüz kod yazılmadı — bu saf tasarım dokümanıdır, Phase 2'de (synthetic generator) bu modele göre kod yazılacak.
+
 ## 2026-08-15 — GitHub reposuna bağlandı
 
 - Local proje bağımsız bir git deposu haline getirildi (önceden `Smart_factory` klasörü, kullanıcının ev dizinine ait alakasız bir git reposunun içinde kalmıştı — buna dokunulmadı, ayrı repo kuruldu).
