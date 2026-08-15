@@ -2,6 +2,14 @@
 
 Bu dosya, projede yapılan önemli değişikliklerin kaydını tutar. En yeni değişiklik en üstte. Format ve güncelleme kuralı için bkz. [CLAUDE.md](CLAUDE.md).
 
+## 2026-08-16 — Phase 7: Pyomo implementasyonu + kritik solver hatası bulundu/düzeltildi
+
+- `optimization/{variables,constraints,objective,solver,results,model}.py` yazıldı — Phase 4-6'daki matematiksel model birebir kodlandı.
+- **Bulunan hata**: `appsi_highs` (Pyomo/HiGHS arayüzü), solver time-limit'e ulaşıp feasible çözüm bulamadığında sessizce sonsuza kadar takılı kalıyor (~115 dk boşa CPU harcandı, süreç öldürüldü). Kök neden native `highspy` ve Pyomo'nun yeni `SolverFactory('highs')` arayüzüyle karşılaştırılarak izole edildi — ikisi de doğru çalışıyor. `solver.py`, yeni arayüze + `load_solutions=False` + kontrollü `has_feasible_solution()` kontrolüne geçirildi.
+- **Doğruluk kanıtlandı**: elle kurulmuş minik örnekte (2 makine, 2 job) Stage "makespan" optimal `Cmax=2.5` (elle hesapla birebir aynı), Stage "energy" solver'ı ucuz saatlere kaydırıp maliyeti teorik minimuma indirdi (`w[o,t]` mekanizması doğru çalışıyor).
+- **Performans bulgusu (gizlenmedi)**: gerçek SMALL veri setinde (162 operasyon) Stage "makespan" 60 saniyede tek bir feasible çözüm bile bulamadı — Big-M disjunctive job-shop MILP'lerin bilinen bir zorluğu, kod hatası değil. Bu, planlandığı gibi Phase 8'in (solver tuning, warm-start) konusu olarak bırakıldı.
+- `docs/decision-log.md`'ye tüm hata ayıklama süreci (appsi bug'ının nasıl izole edildiği) detaylı yazıldı.
+
 ## 2026-08-15 — Phase 6: Matematiksel model — amaç fonksiyonu (tamamlandı)
 
 - `docs/mathematical-model.md`'ye amaç fonksiyonu eklendi: enerji maliyeti teriminin doğrusallaştırılması (`w[o,t]` saatlik linking değişkeni), aşamalı test planı (Stage 1 C_max / Stage 2 EnergyCost / Stage 3 tardiness / Final birleşik), ve birleşik `Z = α·C_max + EnergyCost + γ·Σ T[j]` formülü.
