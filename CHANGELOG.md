@@ -2,6 +2,15 @@
 
 Bu dosya, projede yapılan önemli değişikliklerin kaydını tutar. En yeni değişiklik en üstte. Format ve güncelleme kuralı için bkz. [CLAUDE.md](CLAUDE.md).
 
+## 2026-08-15 — Phase 5: Matematiksel model — kısıtlar (constraints)
+
+- `docs/mathematical-model.md`'ye 8 kısıt eklendi: C1 atama, C2 job-içi sıralama, C3 makine çakışmaması (Big-M + `y[o,o']`), C4 bakım çakışmaması (Big-M + `z[o,k]`), C5 kapasite, C6 release time, C7 tardiness doğrusallaştırma, C8 makine çalışma zamanı sınırı. Ayrıca makespan tanımlayıcı kısıtı (`C_max ≥ C[o]`) eklendi.
+- **Önemli modelleme kararı — C5 (kapasite)**: ayrı bir MILP eşitsizliği olarak değil, `M_o` kümesinin tanımına giren bir uygunluk (eligibility) filtresi olarak modellendi. Gerekçe: `Job.quantity`'nin etkisi Phase 2'de zaten `processing_time`'a gömüldü (`quantity_factor`); ayrı bir kapasite eşitsizliği eklemek bu etkiyi iki kez saymak olurdu. Kullanıcıya açıkça belirtildi ve onaylandı.
+- Big-M seçimi için not eklendi: `BigM = 2 × horizon_hours = 336`, Phase 8'de solver performansı zorlanırsa sıkılaştırma değerlendirilecek.
+- Sıradaki adım Phase 6 (amaç fonksiyonu) — bu dosyada "Planlanan İçerik" olarak işaretli, henüz yazılmadı.
+
+**Genel not**: Bundan sonraki her önemli güncellemede CLAUDE.md'deki kural gereği bu dosya (CHANGELOG.md) düzenli güncellenecek — kullanıcı projeye ne zaman dönerse dönsün "en son nerede kaldık" sorusunun cevabı burada olacak.
+
 ## 2026-08-15 — Phase 4: Matematiksel model — index kümeleri, parametreler, karar değişkenleri
 
 - `docs/mathematical-model.md` yazıldı: `J/O/O_j/M/M_o` index kümeleri; 7 parametre grubu; 5 karar değişkeni tipi (`x[o,m]` atama, `S[o]/C[o]` zamanlama, `y[o,o']` sıralama, `T[j]` tardiness, `C_max` makespan).

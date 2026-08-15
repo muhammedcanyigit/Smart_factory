@@ -1,6 +1,6 @@
 # Mathematical Optimization Model
 
-> Bu doküman MILP modelini aşamalı olarak inşa eder. Bu sürüm **Phase 4** içeriğini kapsar: index kümeleri, parametreler, karar değişkenleri. Kısıtlar (Phase 5) ve amaç fonksiyonu (Phase 6) ayrı bölümler olarak bu dosyaya eklenecek — henüz yazılmadı, aşağıda "Planlanan İçerik" altında listelidir.
+> Bu doküman MILP modelini aşamalı olarak inşa eder. Bu sürüm **Phase 4** (index kümeleri, parametreler, karar değişkenleri) ve **Phase 5** (kısıtlar) içeriğini kapsar. Amaç fonksiyonu (Phase 6) henüz yazılmadı, aşağıda "Planlanan İçerik" altında listelidir.
 
 Kavramsal problem tanımı için bkz. [project-plan.md](project-plan.md) Bölüm F. Veri modeli için bkz. [dataset.md](dataset.md).
 
@@ -101,8 +101,101 @@ Bu örnek, `baseline/scheduler.py`'de greedy olarak "elle" yaptığımız şeyin
 
 ---
 
-## 5. Planlanan İçerik (henüz yazılmadı)
+## 5. Kısıtlar (Constraints)
 
-- **Phase 5 — Constraints**: yukarıdaki 8 kısıt (atama, çakışma, bakım, kapasite, release time, tardiness doğrusallaştırması, çalışma zamanı sınırı, job içi sıralama) formülleriyle.
+Aşağıdaki 8 kısıt, Phase 4'teki değişkenleri gerçek fiziksel kurallara bağlar. Sıra, `project-plan.md`'deki orijinal listeyle aynı.
+
+### C1 — Atama (her operasyon tam olarak bir makineye)
+
+```
+Σ_{m∈M_o} x[o,m] = 1     ∀o∈O
+```
+
+### C2 — Job içi sıralama (operasyonlar sırayla yapılmalı)
+
+Job `j`'nin ardışık operasyonları `o_k, o_{k+1} ∈ O_j` (sequence_no'ya göre) için:
+
+```
+S[o_{k+1}] ≥ C[o_k]
+```
+
+Bu tek kısıt hem "önceki operasyon bitmeden sonraki başlayamaz" kuralını hem de "bir job aynı anda birden fazla yerde olamaz" kuralını karşılar — çünkü operasyonlar zaten zaman ekseninde art arda dizilmiş oluyor.
+
+### C3 — Makine çakışmaması (bir makine aynı anda iki iş yapamaz)
+
+`M_o ∩ M_o' ≠ ∅` olan her `(o,o')` çifti (yapısal gözlem gereği: farklı job'lara ait, aynı `required_machine_type`) ve her `m ∈ M_o ∩ M_o'` için:
+
+```
+S[o'] ≥ C[o]  − BigM·(1−y[o,o']) − BigM·(2−x[o,m]−x[o',m])
+S[o]  ≥ C[o'] − BigM·y[o,o']     − BigM·(2−x[o,m]−x[o',m])
+```
+
+Okunuşu: `x[o,m]=x[o',m]=1` ise (ikisi de gerçekten aynı `m`'ye atandıysa) son terim sıfırlanır ve `y[o,o']` hangisinin önce olduğunu zorunlu kılar. Aksi halde (biri ya da ikisi de `m`'ye atanmadıysa) kısıt otomatik gevşer, bağlayıcı olmaz.
+
+### C4 — Bakım çakışmaması (bakımdaki makineye operasyon atanamaz)
+
+Makine `m`'nin her bakım aralığı `k` (`[ms_{m,k}, me_{m,k}]`) için, `m ∈ M_o` olan her operasyon `o` ve yeni bir sıralama değişkeni `z[o,k] ∈ {0,1}` ile:
+
+```
+C[o] ≤ ms_{m,k} + BigM·(1−z[o,k]) + BigM·(1−x[o,m])
+S[o] ≥ me_{m,k} − BigM·z[o,k]     − BigM·(1−x[o,m])
+```
+
+Aynı C3 mantığı: `x[o,m]=1` ise operasyon ya bakımdan tamamen önce bitecek (`z[o,k]=1`) ya da bakımdan tamamen sonra başlayacak (`z[o,k]=0`).
+
+### C5 — Makine kapasitesi → **kısıt değil, uygunluk (eligibility) filtresi**
+
+Önceki mesajda konuştuğumuz gibi: `Job.quantity`'nin etkisi Phase 2'de `processing_time` üretilirken zaten süreye gömüldü (`quantity_factor`). Ayrı bir "kapasite × süre ≥ miktar" eşitsizliği eklemek bu etkiyi iki kez saymak olur. Bunun yerine kapasite, `M_o` kümesinin **tanımına** giriyor:
+
+```
+M_o = { m ∈ M : machine_type(m) = required_machine_type(o)  AND  capacity_m ≥ capacity_min(o) }
+```
+
+Yani yetersiz kapasiteli makineler zaten `M_o`'ya girmiyor, `x[o,m]` değişkeni onlar için hiç tanımlanmıyor bile. `capacity_min(o)`'nun somut değeri Phase 7 implementasyonunda netleşecek.
+
+### C6 — Release time (job, release_time'dan önce başlayamaz)
+
+Job `j`'nin ilk operasyonu `o_1 ∈ O_j` için:
+
+```
+S[o_1] ≥ r_j
+```
+
+(Sonraki operasyonlar için ayrıca gerekmiyor — C2 zaten zinciri ileri taşıyor.)
+
+### C7 — Tardiness doğrusallaştırma
+
+`max(0, x)` ifadesi MILP'te doğrudan yazılamaz (doğrusal değildir); iki eşitsizlikle doğrusallaştırılır. Job `j`'nin son operasyonu `o_last ∈ O_j` için:
+
+```
+T[j] ≥ C[o_last] − d_j
+T[j] ≥ 0
+```
+
+Solver, amaç fonksiyonunda `T[j]`'yi minimize etmeye çalıştığı için (Phase 6), `T[j]` gereksiz yere büyük seçilmez — bu iki eşitsizlik `T[j] = max(0, C[o_last]-d_j)` ile aynı sonucu garanti eder.
+
+### C8 — Makine çalışma zamanı sınırı
+
+Her operasyon `o` ve `m ∈ M_o` için:
+
+```
+S[o] ≥ available_from_m − BigM·(1−x[o,m])
+C[o] ≤ available_until_m + BigM·(1−x[o,m])
+```
+
+### Tanımlayıcı Kısıt — Makespan (Phase 6'nın amaç fonksiyonu için gerekli)
+
+```
+C_max ≥ C[o]     ∀o∈O
+```
+
+### Big-M Seçimi Üzerine Not
+
+`BigM = 2 × horizon_hours` (yani `336`) makul bir başlangıç değeri — `S[o]` ve `C[o]` zaten `[0, horizon_hours]` aralığında sınırlı olduğundan bu değer tüm "gevşetme" durumlarını güvenle kapsıyor. Gereğinden büyük bir `BigM` seçmek yanlış sonuç vermez ama solver'ı yavaşlatabilir/sayısal hassasiyet sorunu yaratabilir (OR literatüründe bilinen bir husus); Phase 8'de solver performansı zorlanırsa bu değeri sıkılaştırmayı (ör. her kısıt için ayrı, daha küçük bir M hesaplamayı) tekrar değerlendireceğiz.
+
+---
+
+## 6. Planlanan İçerik (henüz yazılmadı)
+
 - **Phase 6 — Objective Function**: önce `min C_max`, sonra `min α·C_max + β·enerji_maliyeti`, sonra `+ γ·Σ T[j]`; α/β/γ seçim gerekçesi.
 - **Phase 7'ye referans**: her formülün Pyomo kodundaki karşılığı (`optimization/variables.py`, `constraints.py`, `objective.py`).
