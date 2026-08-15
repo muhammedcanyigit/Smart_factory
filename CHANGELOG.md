@@ -2,6 +2,15 @@
 
 Bu dosya, projede yapılan önemli değişikliklerin kaydını tutar. En yeni değişiklik en üstte. Format ve güncelleme kuralı için bkz. [CLAUDE.md](CLAUDE.md).
 
+## 2026-08-15 — Phase 3: Baseline System (FCFS/EDF)
+
+- `baseline/scheduler.py`: greedy FCFS ve EDF üretim planlayıcı. Job içi operasyon sırasını ve makine bakım pencerelerini kontrol ediyor; `available_from/until` şimdilik zorlanmıyor (mevcut veride bilgi taşımıyor, Phase 5'te gerçek kısıt olacak).
+- `baseline/metrics.py`: makespan, tardiness, enerji maliyeti, makine kullanım oranı hesaplama — bu fonksiyonlar Phase 9'da optimize edilmiş planla karşılaştırmada da aynen kullanılacak.
+- Doğrulama: SMALL/MEDIUM/LARGE'da hatasız çalıştı (LARGE: 1000 job, ~0.9 saniye); üretilen planda makine çakışması yok, operasyon sırası ihlali yok, bakım çakışması yok (814/814 operasyon MEDIUM'da doğru planlandı).
+- Gözlem: EDF, FCFS'ten daha fazla geciken iş üretti (SMALL'da 7 vs 3) — paylaşılan darboğaz makine (Assembly, tek makine) nedeniyle beklenen, literatürle tutarlı bir sonuç; uydurulmadı, `docs/experiments.md`'ye kaydedildi.
+- `docs/experiments.md` ilk gerçek gözlemlerle dolduruldu (resmi deneyler Phase 19'da).
+
+
 ## 2026-08-15 — Phase 2: Synthetic Data Generator (ilk çalışan kod)
 
 - `data_generator/schemas.py`: Machine, Job, Operation, EnergyPrice, Maintenance dataclass'ları + MachineStatus/MaintenanceType enum'ları.
