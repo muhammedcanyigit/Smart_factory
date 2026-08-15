@@ -2,6 +2,11 @@
 
 Bu dosya, projede yapılan önemli değişikliklerin kaydını tutar. En yeni değişiklik en üstte. Format ve güncelleme kuralı için bkz. [CLAUDE.md](CLAUDE.md).
 
+## 2026-08-15 — Kural değişikliği: git push artık manuel onaylı
+
+- `CLAUDE.md`'ye kural eklendi: local commit'ler her zamanki gibi her önemli değişiklikten sonra atılıyor, ama `git push` artık kullanıcı açıkça "pushla" demeden çalıştırılmıyor.
+- Bu commit'ten itibaren local'de birikip GitHub'a gitmemiş commit'ler olabilir — kullanıcı "pushla" dediğinde hepsi tek seferde gönderilecek.
+
 ## 2026-08-15 — Phase 5: Matematiksel model — kısıtlar (constraints)
 
 - `docs/mathematical-model.md`'ye 8 kısıt eklendi: C1 atama, C2 job-içi sıralama, C3 makine çakışmaması (Big-M + `y[o,o']`), C4 bakım çakışmaması (Big-M + `z[o,k]`), C5 kapasite, C6 release time, C7 tardiness doğrusallaştırma, C8 makine çalışma zamanı sınırı. Ayrıca makespan tanımlayıcı kısıtı (`C_max ≥ C[o]`) eklendi.

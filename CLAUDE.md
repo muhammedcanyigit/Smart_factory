@@ -15,6 +15,7 @@ Smart Factory Digital Twin & Optimization — bitirme projesi + öğrenme projes
 5. **Gereksiz karmaşıklık ekleme.** Basit çözüm yeterliyse onu kullan. CV'de iyi görünsün diye teknoloji ekleme. Kullanıcı yanlış/gereksiz karmaşık bir yaklaşım öneriyorsa söyle.
 6. **Öncelik sırası:** Correctness > Understanding > Reproducibility > Architecture > Performance > Visual polish.
 7. **CHANGELOG.md güncel tutulur.** Aşağıya bak.
+8. **Git push sadece kullanıcı açıkça isteyince yapılır.** Local commit'ler her önemli değişiklikten sonra normal şekilde atılır (CHANGELOG.md güncellemesiyle birlikte), ama `git push` komutu kullanıcı "pushla" / "push et" gibi açıkça talimat verene kadar çalıştırılmaz. (2026-08-15'te kullanıcı tarafından istendi.)
 
 ## CHANGELOG.md Kuralı — ÖNEMLİ
 
