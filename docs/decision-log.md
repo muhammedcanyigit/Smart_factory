@@ -58,7 +58,10 @@ Her fazın sonunda kısa bir madde eklenir: **Öncüller** (o faza girerken vars
 
 - **Karar**: Kullanıcı, `git push`'un yalnızca kendisi açıkça istediğinde yapılmasını talep etti (local commit'ler ve CHANGELOG güncellemeleri normal akışta devam ediyor). `CLAUDE.md`'ye kalıcı kural olarak eklendi.
 
-## Phase 6 — Objective Function (devam ediyor)
+## Phase 6 — Objective Function
 
 - **Öncül**: Enerji maliyeti teriminin, baseline ile **tutarlı** (aynı ölçekte kıyaslanabilir) olması gerekiyordu.
-- **Karar**: Enerji maliyeti, baseline'daki gibi operasyonun **başlangıç saatindeki** birim fiyat kullanılarak hesaplanacak (saat başına kırılıp ağırlıklandırma yapılmayacak) — Phase 9'daki baseline-vs-optimized karşılaştırmasının adil olması için. Kullanıcı onayladı.
+- **Karar**: Enerji maliyeti, baseline'daki gibi operasyonun **başlangıç saatindeki** birim fiyat kullanılarak hesaplanacak. Kullanıcı onayladı.
+- **Problem (kendi kendime fark ettim, kullanıcıya bildirdim)**: `EnergyPrice`'ın Phase 2'de saat başına gürültülü (`rng.normal`) üretildiğini hatırladım — yani fiyat sadece 3-4 kategoriye ayrılmıyor, 168 saatin her biri gerçekte farklı. İlk aklıma gelen "fiyat bloğu" (peak/off-peak/normal, ~28 blok) yaklaşımı bu gürültüyü görmezden gelip baseline'dan sapacaktı — tam da "tutarlı olsun" isteğini bozacaktı.
+- **Çözüm**: MILP'te de saatlik çözünürlük (`w[o,t]`, t=0..167) kullanmaya karar verildi — baseline ile birebir aynı `EnergyPrice` tablosunu, aynı çözünürlükte okuyor. Bedeli: operasyon başına 168 ikili değişken (LARGE'da ~545.000). Bu gizlenmedi; Phase 8'de solver performansı ölçülecek, gerekirse (a) EnergyPrice'ı gürültüsüz/bloklu yeniden üretmek (her iki tarafı da güncelleyerek tutarlılığı koruyarak) ya da (b) decomposition/sezgisel yaklaşıma geçmek seçenekleri var — şimdiden karar verilmedi, Phase 20 stress test'in konusu.
+- **Karar (ağırlıklar)**: α/β/γ rastgele seçilmedi — hepsi $ cinsine çevrildi (`c_time=50 $/saat`, enerji zaten $, `c_tardy=100 $/saat`). Bu sayılar gerçek fabrika ölçümü değil, açıkça belirtilmiş **varsayım**; Phase 19-20'de ±%50 duyarlılık analizi yapılacak. `config/config.yaml`'a yazıldı.

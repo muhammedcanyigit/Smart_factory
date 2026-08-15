@@ -1,6 +1,6 @@
 # Mathematical Optimization Model
 
-> Bu doküman MILP modelini aşamalı olarak inşa eder. Bu sürüm **Phase 4** (index kümeleri, parametreler, karar değişkenleri) ve **Phase 5** (kısıtlar) içeriğini kapsar. Amaç fonksiyonu (Phase 6) henüz yazılmadı, aşağıda "Planlanan İçerik" altında listelidir.
+> Bu doküman MILP modelini aşamalı olarak inşa eder: **Phase 4** (index kümeleri, parametreler, karar değişkenleri), **Phase 5** (kısıtlar), **Phase 6** (amaç fonksiyonu). Matematiksel model burada tamamlandı — sıradaki adım Phase 7'de bunu Pyomo koduna dökmek.
 
 Kavramsal problem tanımı için bkz. [project-plan.md](project-plan.md) Bölüm F. Veri modeli için bkz. [dataset.md](dataset.md).
 
@@ -195,7 +195,60 @@ C_max ≥ C[o]     ∀o∈O
 
 ---
 
-## 6. Planlanan İçerik (henüz yazılmadı)
+## 6. Objective Function (Amaç Fonksiyonu)
 
-- **Phase 6 — Objective Function**: önce `min C_max`, sonra `min α·C_max + β·enerji_maliyeti`, sonra `+ γ·Σ T[j]`; α/β/γ seçim gerekçesi.
-- **Phase 7'ye referans**: her formülün Pyomo kodundaki karşılığı (`optimization/variables.py`, `constraints.py`, `objective.py`).
+### 6.1 — Enerji Maliyeti Teriminin Doğrusallaştırılması
+
+**Tutarlılık zorunluluğu**: `baseline/metrics.py::compute_energy_cost`, her operasyonun **başlangıç saatindeki gerçek** `price_per_kwh` değerini kullanıyor (ve bu değer saat başına gürültülü/farklı — bkz. `data_generator/generator.py::generate_energy_prices`). Baseline ile optimizasyonun aynı ölçekte kıyaslanabilmesi için (Phase 9), MILP'in enerji maliyeti hesabı da **aynı tabloyu, aynı çözünürlükte** okumalı. Bu yüzden fiyatı 3-4 kaba kategoriye (peak/off-peak/normal) indirgemek yerine, planlama ufkundaki her saat için ayrı bir değişken kullanıyoruz.
+
+**Yeni yardımcı değişken**: `w[o,t] ∈ {0,1}`, `t = 0,...,horizon_hours-1`
+→ Operasyon `o`, `t`. saatte başlarsa 1.
+
+```
+Σ_t w[o,t] = 1                                    (her operasyon tam olarak bir saatte başlar)
+S[o] ≥ t   − BigM·(1−w[o,t])                       (linking, alt sınır)
+S[o] ≤ t+1 + BigM·(1−w[o,t])                       (linking, üst sınır)
+```
+
+Enerji maliyeti terimi (doğrusal — `e_o` ve `price_t` sabit, tek değişken `w[o,t]`):
+
+```
+EnergyCost = Σ_{o∈O} e_o · Σ_t w[o,t] · price_t
+```
+
+**Ölçeklenebilirlik uyarısı (gizlemiyorum)**: Bu, operasyon başına `horizon_hours` (168) yeni ikili değişken demek. LARGE preset'te (3245 operasyon) bu tek başına ~545.000 ikili değişkene karşılık gelir — `x[o,m]` ve `y[o,o']`'nin üzerine. `Correctness > Performance` önceliğimiz gereği önce doğru modeli kuruyoruz; Phase 8'de HiGHS'in bunu makul sürede çözüp çözemediğini ölçeceğiz. Çözemezse iki dürüst alternatifimiz var: (a) `EnergyPrice` verisini gürültüsüz, gerçekten 3-4 bloklu üretecek şekilde Phase 2'yi güncelleyip her iki tarafı da (baseline+MILP) o yeni tabloya geçirmek — tutarlılık bozulmaz çünkü ikisi de aynı tabloyu okumaya devam eder; (b) yalnızca büyük ölçekte sezgisel/decomposition yaklaşımına geçmek. Şimdi karar vermiyoruz, Phase 20 "stress test" tam olarak bunun için var.
+
+### 6.2 — Aşamalı Objective Tanımları
+
+Phase 0'da anlaştığımız gibi, Phase 7'de bunları **ayrı ayrı** test edip sonra birleştireceğiz — her biri bir mekanizmayı izole test eder:
+
+| Aşama | Objective | Neyi test eder |
+|---|---|---|
+| Stage 1 | `min C_max` | Temel atama + zamanlama + sıralama kısıtlarının doğru çalıştığını |
+| Stage 2 | `min EnergyCost` | `w[o,t]` linking mekanizmasının doğru çalıştığını |
+| Stage 3 | `min Σ_j T[j]` | Tardiness doğrusallaştırmasının (C7) doğru çalıştığını |
+| Final | birleşik (aşağıya bakınız) | Hepsinin birlikte, doğru ağırlıklarla çalıştığını |
+
+### 6.3 — Birleşik Amaç Fonksiyonu
+
+```
+min Z = α · C_max + EnergyCost + γ · Σ_{j∈J} T[j]
+```
+
+### 6.4 — α, β, γ Seçimi: Rastgele Değil, Parasal (Monetary) Dönüşüm
+
+`C_max` saat, `EnergyCost` $, `Σ T[j]` saat cinsinden — doğrudan toplanamazlar (farklı birimler). Klasik "dimensionless ağırlık" yaklaşımı (ör. α=0.4, β=0.3, γ=0.3) yerine, **her terimi $'a çeviren gerçek katsayılar** kullanıyoruz — böylece Z, gerçekten "toplam operasyonel maliyet ($)" anlamına gelir ve ağırlıkların neden o değerde olduğu sorusuna "çünkü 1 saat fazladan üretimin/gecikmenin maliyeti budur" diye somut cevap verilebilir:
+
+| Sembol | Anlamı | Varsayılan Değer | Gerekçe |
+|---|---|---|---|
+| `α = c_time` | 1 saatlik ekstra üretim süresinin fabrikaya maliyeti ($/saat) — genel gider, işçilik, amortisman | **50** | Gerçek fabrika verisi olmadığından **varsayım**; SMALL'daki ortalama saatlik enerji maliyetinin (~34 $/saat, `4858/144`) yaklaşık 1.5 katı — makul bir genel gider mertebesi |
+| `β = 1` | Enerji maliyeti zaten $ cinsinden | **1** | Dönüşüm gerekmiyor |
+| `γ = c_tardy` | 1 saatlik gecikmenin maliyeti ($/saat) — sözleşme cezası, müşteri memnuniyetsizliği | **100** | **Varsayım**; `c_time`'dan yüksek tutuldu çünkü gecikme itibar/müşteri ilişkisi riski taşır, salt operasyonel maliyetten daha ağır kabul edilir |
+
+**Akademik dürüstlük notu**: `c_time` ve `c_tardy` gerçek bir fabrikadan ölçülmedi — mantıklı ama **varsayılan** değerler. Bu, rapora "varsayımlar" (assumptions) bölümünde açıkça yazılacak. Phase 19-20'de bu katsayıları ±%50 değiştirip sonucun ne kadar duyarlı olduğunu (sensitivity analysis) göstereceğiz — bu, tek bir keyfi sayıya güvenmediğimizi kanıtlayacak.
+
+Bu değerler `config/config.yaml`'daki `optimization.objective_weights` altına yazıldı (önceden `null` idi).
+
+### 6.5 — Phase 7'ye Referans
+
+Her formülün Pyomo karşılığı: `optimization/variables.py` (x, S, C, y, T, C_max, w), `optimization/constraints.py` (C1-C8 + w linking), `optimization/objective.py` (Z).

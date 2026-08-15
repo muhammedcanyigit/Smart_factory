@@ -2,6 +2,14 @@
 
 Bu dosya, projede yapılan önemli değişikliklerin kaydını tutar. En yeni değişiklik en üstte. Format ve güncelleme kuralı için bkz. [CLAUDE.md](CLAUDE.md).
 
+## 2026-08-15 — Phase 6: Matematiksel model — amaç fonksiyonu (tamamlandı)
+
+- `docs/mathematical-model.md`'ye amaç fonksiyonu eklendi: enerji maliyeti teriminin doğrusallaştırılması (`w[o,t]` saatlik linking değişkeni), aşamalı test planı (Stage 1 C_max / Stage 2 EnergyCost / Stage 3 tardiness / Final birleşik), ve birleşik `Z = α·C_max + EnergyCost + γ·Σ T[j]` formülü.
+- **Önemli düzeltme**: İlk planlanan "3-4 fiyat bloğu" yaklaşımı, Phase 2'nin saat başına gürültülü fiyat ürettiğini fark edince terk edildi — baseline ile tutarlılık için saatlik çözünürlüğe (168 blok) geçildi. Bedeli (LARGE'da ~545.000 ek ikili değişken) gizlenmeden not edildi, Phase 8/20'de gözlemlenecek.
+- Ağırlıklar (α/β/γ) rastgele seçilmedi: $ cinsine çevrildi (`c_time=50`, enerji zaten $, `c_tardy=100`) — `config/config.yaml`'a yazıldı, açıkça "varsayım" olarak işaretlendi, Phase 19-20'de duyarlılık analizi planlandı.
+- **Matematiksel model (Phase 4-6) tamamlandı.** Sıradaki adım Phase 7: Pyomo implementasyonu.
+- `docs/decision-log.md` ve `CLAUDE.md` (kural 9 + docs listesi) güncellendi.
+
 ## 2026-08-15 — docs/decision-log.md oluşturuldu
 
 - Yeni dosya: `docs/decision-log.md` — CHANGELOG.md'den farklı olarak "ne değişti" değil, "neden böyle karar verildi" sorusuna cevap veriyor. Her faz için: öncüller, kararlar (gerekçesiyle), karşılaşılan problem/çözüm.
