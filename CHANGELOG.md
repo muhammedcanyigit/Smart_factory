@@ -2,6 +2,13 @@
 
 Bu dosya, projede yapılan önemli değişikliklerin kaydını tutar. En yeni değişiklik en üstte. Format ve güncelleme kuralı için bkz. [CLAUDE.md](CLAUDE.md).
 
+## 2026-08-15 — Phase 4: Matematiksel model — index kümeleri, parametreler, karar değişkenleri
+
+- `docs/mathematical-model.md` yazıldı: `J/O/O_j/M/M_o` index kümeleri; 7 parametre grubu; 5 karar değişkeni tipi (`x[o,m]` atama, `S[o]/C[o]` zamanlama, `y[o,o']` sıralama, `T[j]` tardiness, `C_max` makespan).
+- Yapısal gözlem belgelendi: ürün şablonlarında bir job içinde makine tipi tekrar etmediği için `y[o,o']` sıralama değişkeni yalnızca farklı job'lara ait operasyonlar arasında anlamlı — aynı job'un kendi operasyonları hiçbir zaman aynı makineye "yarışmıyor".
+- Somut sayısal örnek eklendi (2 job, paylaşılan tek Packaging makinesi) — `baseline/scheduler.py`'nin greedy olarak elle yaptığı seçimin, optimizasyonda `x/y/S/C` değişkenleri üzerinden solver'a bırakılacağını gösteriyor.
+- Henüz kısıt (Phase 5) ve amaç fonksiyonu (Phase 6) yazılmadı — bu dosyada "Planlanan İçerik" olarak işaretli.
+
 ## 2026-08-15 — Phase 3: Baseline System (FCFS/EDF)
 
 - `baseline/scheduler.py`: greedy FCFS ve EDF üretim planlayıcı. Job içi operasyon sırasını ve makine bakım pencerelerini kontrol ediyor; `available_from/until` şimdilik zorlanmıyor (mevcut veride bilgi taşımıyor, Phase 5'te gerçek kısıt olacak).
