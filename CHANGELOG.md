@@ -2,6 +2,12 @@
 
 Bu dosya, projede yapılan önemli değişikliklerin kaydını tutar. En yeni değişiklik en üstte. Format ve güncelleme kuralı için bkz. [CLAUDE.md](CLAUDE.md).
 
+## 2026-08-15 — docs/decision-log.md oluşturuldu
+
+- Yeni dosya: `docs/decision-log.md` — CHANGELOG.md'den farklı olarak "ne değişti" değil, "neden böyle karar verildi" sorusuna cevap veriyor. Her faz için: öncüller, kararlar (gerekçesiyle), karşılaşılan problem/çözüm.
+- Phase 0'dan Phase 5'e kadar (+ repo kurulumu, git push onay kuralı) geriye dönük dolduruldu — özellikle C5 kapasite modelleme kararı ve EDF/FCFS bulgusu gibi "zor" kararlar detaylandırıldı.
+- `CLAUDE.md`'ye kural 9 eklendi: her faz sonunda bu dosya da güncellenecek.
+
 ## 2026-08-15 — Kural değişikliği: git push artık manuel onaylı
 
 - `CLAUDE.md`'ye kural eklendi: local commit'ler her zamanki gibi her önemli değişiklikten sonra atılıyor, ama `git push` artık kullanıcı açıkça "pushla" demeden çalıştırılmıyor.

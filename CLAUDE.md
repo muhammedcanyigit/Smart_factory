@@ -16,6 +16,7 @@ Smart Factory Digital Twin & Optimization — bitirme projesi + öğrenme projes
 6. **Öncelik sırası:** Correctness > Understanding > Reproducibility > Architecture > Performance > Visual polish.
 7. **CHANGELOG.md güncel tutulur.** Aşağıya bak.
 8. **Git push sadece kullanıcı açıkça isteyince yapılır.** Local commit'ler her önemli değişiklikten sonra normal şekilde atılır (CHANGELOG.md güncellemesiyle birlikte), ama `git push` komutu kullanıcı "pushla" / "push et" gibi açıkça talimat verene kadar çalıştırılmaz. (2026-08-15'te kullanıcı tarafından istendi.)
+9. **docs/decision-log.md güncel tutulur.** Her fazın sonunda kısa bir madde eklenir: o faza girerken öncüller neydi, hangi kararlar verildi (özellikle zor/tartışmalı modelleme kararları) ve gerekçesi, hangi problem çıktı ve nasıl çözüldü. CHANGELOG.md "ne değişti" der, bu dosya "neden böyle karar verildi" der — ikisi farklı amaçlara hizmet eder, biri diğerinin yerine geçmez. (2026-08-15'te kullanıcı tarafından istendi.)
 
 ## CHANGELOG.md Kuralı — ÖNEMLİ
 
@@ -33,6 +34,7 @@ Bu projede yapılan her önemli değişiklik (yeni dosya/modül eklendi, bir pha
 - `docs/mathematical-model.md` — MILP modeli: parametreler, değişkenler, kısıtlar, amaç fonksiyonu (Phase 4-6'da doldurulur).
 - `docs/dataset.md` — veri modeli, synthetic generator mantığı, referans alınan gerçek datasetler (Phase 1-2'de doldurulur).
 - `docs/experiments.md` — deney tasarımı ve sonuçları (Phase 19-20'de doldurulur).
+- `docs/decision-log.md` — her fazın öncülleri, kararları ve karşılaşılan problemleri (kısa, faz faz). CHANGELOG.md'den farklı: o "ne değişti" der, bu "neden böyle karar verildi" der.
 - `docs/report/` — bitirme projesi raporu taslakları.
 
 ## Teknoloji Stack (özet)
