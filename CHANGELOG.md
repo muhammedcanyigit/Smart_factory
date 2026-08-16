@@ -2,6 +2,15 @@
 
 Bu dosya, projede yapılan önemli değişikliklerin kaydını tutar. En yeni değişiklik en üstte. Format ve güncelleme kuralı için bkz. [CLAUDE.md](CLAUDE.md).
 
+## 2026-08-16 — Phase 8 TAMAMLANDI: Native highspy warm-start
+
+- `optimization/native_solver.py` eklendi: Pyomo'yu sadece model kurmak için kullanıp, çözümü appsi'yi bypass ederek doğrudan `highspy`'a devrediyor (appsi bu ortamda hem "çözüm yok" hem warm-start senaryosunda güvenilmez çıktığı için). Pyomo `SymbolMap` ile MPS↔Pyomo değişken eşlemesi kuruluyor.
+- `optimization/solver.py`'ye `solve_with_warm_start()` eklendi — Phase 9+ için önerilen tek çağrılık arayüz.
+- Doğruluk yeniden kanıtlandı (minik örnek, warm-start'lı/warm-start'sız aynı optimal sonuç).
+- **SMALL, Stage "makespan"**: 300+ sn → **0.34 sn**. Baseline'ın (144.31h) zaten kanıtlanmış optimal olduğu gösterildi (Gap %0) — sistem hafif yüklü olduğu için beklenen bir sonuç, model doğruluğunun bağımsız kanıtı.
+- **SMALL, Stage "final" ($ birleşik hedef)**: 120 sn'de baseline'a göre **%6.0 maliyet iyileştirildi** ($13,051.72 → $12,263.83, gap %10.4). Optimizasyonun baseline'ın göremediği enerji/tardiness boyutlarında gerçek değer kattığının ilk somut kanıtı.
+- `docs/decision-log.md` detaylı güncellendi. **Push kuralı artık her commit'le birlikte otomatik.**
+
 ## 2026-08-16 — Phase 8: Warm-start denendi (appsi güvenilmez çıktı) + süre testi
 
 - `optimization/warmstart.py` eklendi: baseline planını MILP'in tüm değişkenlerinin (x,S,C,y,z,w,T,Cmax) başlangıç değerlerine çeviriyor. Çeviri doğru çalıştığı doğrulandı (başlangıç Cmax=144.31, baseline ile birebir).

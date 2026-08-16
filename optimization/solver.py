@@ -45,3 +45,16 @@ def load_solution(model: pyo.ConcreteModel, results) -> None:
     çözüm varsa (has_feasible_solution ile önce kontrol edilmeli) bunu model
     değişkenlerine yükler."""
     model.solutions.load_from(results)
+
+
+def solve_with_warm_start(model: pyo.ConcreteModel, data: dict, baseline_schedule, time_limit_seconds: int = 300):
+    """ÖNERİLEN yol (bkz. docs/decision-log.md Phase 8): baseline planını warm-start
+    olarak verip native highspy ile çözer. appsi_highs'ın warm-start ile de
+    güvenilmez çıkması üzerine bu yol tercih ediliyor — SMALL'da 300+ sn'den
+    0.34 sn'ye düşüren, kanıtlanmış çözüm budur.
+    """
+    from optimization.native_solver import solve_native
+    from optimization.warmstart import apply_warm_start
+
+    apply_warm_start(model, data, baseline_schedule)
+    return solve_native(model, data, time_limit_seconds=time_limit_seconds, warm_start_values=True)
