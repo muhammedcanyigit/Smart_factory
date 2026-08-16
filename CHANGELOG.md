@@ -2,6 +2,15 @@
 
 Bu dosya, projede yapılan önemli değişikliklerin kaydını tutar. En yeni değişiklik en üstte. Format ve güncelleme kuralı için bkz. [CLAUDE.md](CLAUDE.md).
 
+## 2026-08-16 — Phase 9: Baseline vs Optimized karşılaştırması
+
+- `optimization/comparison.py` eklendi: FCFS/EDF/Optimized'ı aynı metriklerle (`baseline/metrics.py::summarize`) ve aynı $ formülüyle (`compute_total_cost`) kıyaslıyor.
+- **SMALL sonucu**: Optimized, FCFS'e göre toplam maliyette **%5.22 iyileşme** ($13051.72 → $12370.73, solver gap %10.42). Enerji maliyeti %21 düştü ama production time ve late job sayısı arttı — dürüstçe raporlandı, model toplamı minimize ediyor tek tek metrikleri değil.
+- Optimize edilmiş planın fiziksel geçerliliği ayrıca doğrulandı (0 hata, 162/162 operasyon).
+- **Reproducibility notu eklendi**: solver'ın time-limit'e dayalı sonucu, veri üretiminin aksine tam deterministik değil — bu ayrım `docs/experiments.md`'ye işlendi.
+- Sonuçlar `experiments/results/comparison_small.json` ve `optimized_schedule_small.csv`'ye kaydedildi (gitignore'da, script ile yeniden üretilebilir).
+- `docs/experiments.md` ve `docs/decision-log.md` güncellendi.
+
 ## 2026-08-16 — Phase 8: MEDIUM ölçek doğrulaması
 
 - Stage "makespan", warm-start, 60 sn: `Cmax=147.45` (baseline: 147.45), gap %0.21 — MEDIUM'da da baseline optimale çok yakın, SMALL bulgusuyla tutarlı.
