@@ -2,6 +2,14 @@
 
 Bu dosya, projede yapılan önemli değişikliklerin kaydını tutar. En yeni değişiklik en üstte. Format ve güncelleme kuralı için bkz. [CLAUDE.md](CLAUDE.md).
 
+## 2026-08-16 — Phase 8: Warm-start denendi (appsi güvenilmez çıktı) + süre testi
+
+- `optimization/warmstart.py` eklendi: baseline planını MILP'in tüm değişkenlerinin (x,S,C,y,z,w,T,Cmax) başlangıç değerlerine çeviriyor. Çeviri doğru çalıştığı doğrulandı (başlangıç Cmax=144.31, baseline ile birebir).
+- **appsi_highs + warmstart=True denendi, yine donuk kaldı** (45 sn'de çıktı yok) — appsi'nin bu ortamda genel olarak güvenilmez olduğu netleşti (sadece "çözüm yok" durumunda değil).
+- Alternatif olarak warm-start olmadan, güvenilir arayüzle 300 saniye (config varsayılanı) test edildi: `Cmax=161.72h` — 60 sn'deki 165.70h'ye göre yalnızca %2.4 iyileşme, hâlâ baseline'ın (144.31h) gerisinde. **Sonuç: salt süre artışı çözüm değil, gerçekten warm-start gerekiyor.**
+- Native-highspy tabanlı warm-start (appsi'yi bypass eden, daha sağlam bir yol) bir sonraki adım olarak `docs/decision-log.md`'ye not düşüldü, bu oturumda tamamlanmadı.
+- **Phase 8 bu oturum için kısmen tamamlandı**: Big-M sıkılaştırması kalıcı bir kazanç (kod ve dokümanlara işlendi); SMALL artık feasible çözüm buluyor ama baseline'ı henüz geçemiyor.
+
 ## 2026-08-16 — Phase 8: Big-M ispatlanabilir şekilde sıkılaştırıldı (336 → 168)
 
 - `optimization/variables.py`: `S[o]/C[o]`'ya sert sınır `[0, horizon_hours]` eklendi (C1+C8'in zaten örtük garantisi, feasible çözüm elenmiyor).
