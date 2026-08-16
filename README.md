@@ -10,9 +10,11 @@ Bu proje bir karar destek sistemidir (decision support system) — gerçek bir f
 
 ## Durum
 
-Şu an: **Phase 0 — Proje Tanımı** tamamlandı. Henüz hiç uygulama kodu yazılmadı, sadece proje iskeleti oluşturuldu.
+Şu an: **Phase 0-9 tamamlandı** (24 fazdan 10'u). Proje tanımı → veri modeli → sentetik veri üretici → baseline (FCFS/EDF) → matematiksel model (MILP) → Pyomo implementasyonu → solver optimizasyonu → baseline vs optimized karşılaştırması.
 
-İlerleme ve gerekçeler için bkz. [CHANGELOG.md](CHANGELOG.md).
+- **Projeyi hiç bilmeyen biri için, çok basit anlatım**: [PROJE-OZETI.md](PROJE-OZETI.md) — buradan başla.
+- İlerleme ve gerekçeler için bkz. [CHANGELOG.md](CHANGELOG.md).
+- "Neden bu kararı verdik" için bkz. [docs/decision-log.md](docs/decision-log.md).
 
 ## Veri Hakkında Not
 

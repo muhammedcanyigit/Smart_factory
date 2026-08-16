@@ -17,6 +17,7 @@ Smart Factory Digital Twin & Optimization — bitirme projesi + öğrenme projes
 7. **CHANGELOG.md güncel tutulur.** Aşağıya bak.
 8. **Her commit push ile birlikte atılır.** Local commit'ten sonra hemen `git push` yapılır — ayrı onay beklenmez. (2026-08-15'te önce "sadece kullanıcı isteyince pushla" kuralı konmuştu; 2026-08-16'da kullanıcı bunu kaldırıp "her güncellemede push at" dedi — bu kural günceldir.)
 9. **docs/decision-log.md güncel tutulur.** Her fazın sonunda kısa bir madde eklenir: o faza girerken öncüller neydi, hangi kararlar verildi (özellikle zor/tartışmalı modelleme kararları) ve gerekçesi, hangi problem çıktı ve nasıl çözüldü. CHANGELOG.md "ne değişti" der, bu dosya "neden böyle karar verildi" der — ikisi farklı amaçlara hizmet eder, biri diğerinin yerine geçmez. (2026-08-15'te kullanıcı tarafından istendi.)
+10. **PROJE-OZETI.md güncel tutulur.** Ana klasörde, hiç teknik terim kullanmadan ("mala anlatır gibi") her fazda ne yapıldığını anlatan dosya. Her yeni faz tamamlandığında buraya da 1 bölüm eklenir (CHANGELOG/decision-log'daki teknik detay değil, sade hikaye anlatımı). Kullanıcının projeye ara verip geri döndüğünde önce buraya bakması bekleniyor. (2026-08-16'da kullanıcı tarafından istendi.)
 
 ## CHANGELOG.md Kuralı — ÖNEMLİ
 
@@ -29,6 +30,7 @@ Bu projede yapılan her önemli değişiklik (yeni dosya/modül eklendi, bir pha
 
 ## Dokümantasyon Yapısı
 
+- `PROJE-OZETI.md` (ana klasörde) — hiç teknik terim yok, faz faz "ne yaptık, niye yaptık, ne oldu" hikayesi. En basit, en hızlı giriş noktası.
 - `docs/project-plan.md` — Phase 0 proje tanımı, terminoloji, mimari, yol haritası, dataset stratejisi, riskler.
 - `docs/architecture.md` — sistem mimarisi detayları (Phase 22'de ve ilerledikçe doldurulur).
 - `docs/mathematical-model.md` — MILP modeli: parametreler, değişkenler, kısıtlar, amaç fonksiyonu (Phase 4-6'da doldurulur).

@@ -2,6 +2,11 @@
 
 Bu dosya, projede yapılan önemli değişikliklerin kaydını tutar. En yeni değişiklik en üstte. Format ve güncelleme kuralı için bkz. [CLAUDE.md](CLAUDE.md).
 
+## 2026-08-17 — PROJE-OZETI.md eklendi
+
+- Yeni dosya (ana klasörde): `PROJE-OZETI.md` — Phase 0-9'u hiç teknik terim kullanmadan, hikaye anlatır gibi özetliyor. Kullanıcının "en son nerede kaldık" diye hızlıca hatırlaması için.
+- `README.md` ve `CLAUDE.md` bu dosyaya referans verecek şekilde güncellendi; `CLAUDE.md`'ye kural 10 eklendi (her faz sonunda bu dosya da güncellenecek).
+
 ## 2026-08-16 — Phase 9: Baseline vs Optimized karşılaştırması
 
 - `optimization/comparison.py` eklendi: FCFS/EDF/Optimized'ı aynı metriklerle (`baseline/metrics.py::summarize`) ve aynı $ formülüyle (`compute_total_cost`) kıyaslıyor.
