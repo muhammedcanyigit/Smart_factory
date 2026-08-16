@@ -104,7 +104,7 @@ def prepare_data(dataset: dict[str, pd.DataFrame], config: dict) -> dict:
         h = int(_to_hours(row["timestamp"]))
         price_by_hour[h] = row["price_per_kwh"]
 
-    big_m = config["optimization"].get("big_m", 2 * horizon_hours)
+    big_m = config["optimization"].get("big_m", horizon_hours)
 
     return {
         "O": O,

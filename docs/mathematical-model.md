@@ -189,9 +189,22 @@ C[o] ≤ available_until_m + BigM·(1−x[o,m])
 C_max ≥ C[o]     ∀o∈O
 ```
 
-### Big-M Seçimi Üzerine Not
+### Big-M Seçimi Üzerine Not (Phase 8'de revize edildi)
 
-`BigM = 2 × horizon_hours` (yani `336`) makul bir başlangıç değeri — `S[o]` ve `C[o]` zaten `[0, horizon_hours]` aralığında sınırlı olduğundan bu değer tüm "gevşetme" durumlarını güvenle kapsıyor. Gereğinden büyük bir `BigM` seçmek yanlış sonuç vermez ama solver'ı yavaşlatabilir/sayısal hassasiyet sorunu yaratabilir (OR literatüründe bilinen bir husus); Phase 8'de solver performansı zorlanırsa bu değeri sıkılaştırmayı (ör. her kısıt için ayrı, daha küçük bir M hesaplamayı) tekrar değerlendireceğiz.
+İlk sürümde `BigM = 2 × horizon_hours = 336` kullanılmıştı. Phase 8'de bu **ispatlanabilir şekilde** sıkılaştırıldı:
+
+1. `S[o]` ve `C[o]` değişkenlerine artık **sert değişken sınırı** `[0, horizon_hours]` konuyor (`optimization/variables.py`). Bu, hiçbir feasible çözümü elemiyor — çünkü C1+C8 zaten her geçerli çözümde bunu örtük olarak garanti ediyor; sadece örtük olanı solver'a açıkça bildiriyoruz.
+2. Bu sınıra dayanarak, her Big-M'li kısıt (C3, C4, w-linking) için "en kötü durumda gerekli M" türetildi: C3'te `M ≥ C[o]_max = horizon_hours`; C4'te `M ≥ max(C[o]_max − ms_k, me_k) ≤ horizon_hours`; w-linking'de `M ≥ horizon_hours − 1`. Sonuç: **`BigM = horizon_hours = 168`** üçü için de güvenle yeterli — kanıtlanmış, tahmin edilmemiş.
+
+**Ampirik etki (SMALL, Stage "makespan", 60 sn):**
+
+| | BigM=336 (eski) | BigM=168 (yeni) |
+|---|---|---|
+| Bulunan feasible çözüm | Yok (Primal bound: inf) | Var (Cmax=165.70h) |
+| Dual bound (LP alt sınır) | 144.31 | 144.31 (aynı) |
+| Gap | — | %12.91 |
+
+Sıkılaştırma, "hiç çözüm bulamama" durumunu **tamamen ortadan kaldırdı** — 6 saniyede ilk feasible çözüm bulundu. Ama bulunan en iyi çözüm (165.70h) hâlâ baseline FCFS'in (144.31h) **gerisinde** — bu, solver'ın sıfırdan aramasının hâlâ baseline'ın bildiği kadar iyi bir noktayı 60 saniyede bulamadığını gösteriyor. Sonraki adım olarak warm-start (baseline'ı başlangıç çözümü verme) bu yüzden güçlü bir aday.
 
 ---
 

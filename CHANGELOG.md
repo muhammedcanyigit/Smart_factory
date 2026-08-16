@@ -2,6 +2,14 @@
 
 Bu dosya, projede yapılan önemli değişikliklerin kaydını tutar. En yeni değişiklik en üstte. Format ve güncelleme kuralı için bkz. [CLAUDE.md](CLAUDE.md).
 
+## 2026-08-16 — Phase 8: Big-M ispatlanabilir şekilde sıkılaştırıldı (336 → 168)
+
+- `optimization/variables.py`: `S[o]/C[o]`'ya sert sınır `[0, horizon_hours]` eklendi (C1+C8'in zaten örtük garantisi, feasible çözüm elenmiyor).
+- `config/config.yaml`: `big_m: 336 → 168` — matematiksel olarak türetildi (bkz. `docs/mathematical-model.md` Bölüm 5), tahmin değil.
+- Doğruluk önce yeniden test edildi (minik örnek, sonuçlar birebir aynı), sonra SMALL'da denendi: eskiden 60 sn'de feasible çözüm YOK, şimdi 6. saniyede bulundu, 60 sn'de gap %12.91'e indi.
+- **Yeni bulgu**: solver'ın 60 sn'de bulduğu en iyi çözüm (165.70h) hâlâ baseline FCFS'ten (144.31h) kötü; dual bound (144.31) baseline'a birebir eşit — gerçek optimalin baseline'a çok yakın olabileceğine işaret ediyor. Warm-start için güçlü bir gerekçe oluştu.
+- `docs/mathematical-model.md` ve `docs/decision-log.md` güncellendi.
+
 ## 2026-08-16 — Phase 7: Pyomo implementasyonu + kritik solver hatası bulundu/düzeltildi
 
 - `optimization/{variables,constraints,objective,solver,results,model}.py` yazıldı — Phase 4-6'daki matematiksel model birebir kodlandı.

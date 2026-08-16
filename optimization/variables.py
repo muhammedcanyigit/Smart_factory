@@ -20,9 +20,15 @@ def add_variables(model: pyo.ConcreteModel, data: dict, include_energy: bool) ->
     model.OM = pyo.Set(initialize=om_pairs, dimen=2)
     model.x = pyo.Var(model.OM, domain=pyo.Binary)
 
+    # Üst sınır (0, horizon_hours): C1+C8 zaten her GEÇERLİ çözümde bunu garanti
+    # ediyor (her operasyon bir makineye atanır, o makinenin çalışma penceresi
+    # ufkun sonunda biter) — burada örtük olanı açıkça yazıyoruz. Hiçbir feasible
+    # çözümü elemez, sadece LP gevşetmesini sıkılaştırır (bkz. docs/decision-log.md
+    # Phase 8). Big-M türetmeleri de bu sınıra dayanıyor.
+    horizon = data["horizon_hours"]
     model.O_SET = pyo.Set(initialize=data["O"])
-    model.S = pyo.Var(model.O_SET, domain=pyo.NonNegativeReals)
-    model.C = pyo.Var(model.O_SET, domain=pyo.NonNegativeReals)
+    model.S = pyo.Var(model.O_SET, domain=pyo.NonNegativeReals, bounds=(0, horizon))
+    model.C = pyo.Var(model.O_SET, domain=pyo.NonNegativeReals, bounds=(0, horizon))
 
     model.YPairs = pyo.Set(initialize=data["y_pairs"], dimen=2)
     model.y = pyo.Var(model.YPairs, domain=pyo.Binary)

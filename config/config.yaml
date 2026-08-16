@@ -19,7 +19,7 @@ dataset:
 optimization:
   solver: highs         # highs | gurobi
   time_limit_seconds: 300
-  big_m: 336             # 2 x horizon_hours (bkz. docs/mathematical-model.md Bölüm 5)
+  big_m: 168             # = horizon_hours; ispatlanabilir güvenli minimum (bkz. docs/mathematical-model.md Bölüm 5, Phase 8 revizyonu). Önceki değer 336 idi.
   objective_weights:     # Gerekçe: docs/mathematical-model.md Bölüm 6.4 — varsayılan ($/saat) katsayılar, Phase 19-20'de duyarlılık analizi yapılacak
     production_time: 50   # c_time: $/saat (üretim süresi maliyeti)
     energy_cost: 1        # zaten $ cinsinden, dönüşüm gerekmiyor
