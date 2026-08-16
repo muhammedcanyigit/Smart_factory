@@ -2,6 +2,11 @@
 
 Bu dosya, projede yapılan önemli değişikliklerin kaydını tutar. En yeni değişiklik en üstte. Format ve güncelleme kuralı için bkz. [CLAUDE.md](CLAUDE.md).
 
+## 2026-08-16 — Phase 8: MEDIUM ölçek doğrulaması
+
+- Stage "makespan", warm-start, 60 sn: `Cmax=147.45` (baseline: 147.45), gap %0.21 — MEDIUM'da da baseline optimale çok yakın, SMALL bulgusuyla tutarlı.
+- **Phase 8 tamamen kapatıldı.** Sonuç netleşti: baseline makespan'de zaten (neredeyse) optimal; asıl optimizasyon değeri "final" (birleşik $) hedefte. Bu, Phase 9'un tasarımını etkiliyor — makespan-only karşılaştırma anlamsız kalır, "final" hedefle karşılaştırma yapılmalı.
+
 ## 2026-08-16 — Phase 8 TAMAMLANDI: Native highspy warm-start
 
 - `optimization/native_solver.py` eklendi: Pyomo'yu sadece model kurmak için kullanıp, çözümü appsi'yi bypass ederek doğrudan `highspy`'a devrediyor (appsi bu ortamda hem "çözüm yok" hem warm-start senaryosunda güvenilmez çıktığı için). Pyomo `SymbolMap` ile MPS↔Pyomo değişken eşlemesi kuruluyor.
