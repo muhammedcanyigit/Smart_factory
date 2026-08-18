@@ -2,6 +2,13 @@
 
 Bu dosya, projede yapılan önemli değişikliklerin kaydını tutar. En yeni değişiklik en üstte. Format ve güncelleme kuralı için bkz. [CLAUDE.md](CLAUDE.md).
 
+## 2026-08-19 — Phase 12: Enerji tüketimi tahmini (2. ML modeli)
+
+- `ml/training.py` genelleştirildi (`TASKS` sözlüğü, `task` parametresi) — processing_time ve energy_consumption aynı altyapıyı paylaşıyor. `preprocessing/features.py` her iki hedef için de gereken kolonları döndürüyor. `ml/prediction.py`'ye `--task` flag'i eklendi.
+- Regresyon kontrolü: Phase 10 sonucu (processing_time) refactor sonrası birebir aynı çıktı.
+- **Sonuç**: energy_consumption tahmininde R² 0.93-0.99 (SMALL/MEDIUM/LARGE) — Phase 10'un tam tersi, çünkü `processing_time` feature olarak eklendi (generator'da enerji zaten süreye bağlı üretiliyordu). Bu sefer Random Forest/Gradient Boosting, Linear Regression'ı gerçekten geçti — çarpımsal (süre × makine-tipi-oranı) etkileşimi ağaç modelleri daha iyi yakalıyor.
+- Phase 10 vs Phase 12 karşılaştırması `docs/decision-log.md`'ye "ne zaman ML işe yarar" dengeli örneği olarak eklendi.
+
 ## 2026-08-19 — Phase 11: Predict→Optimize + kritik warm-start hatası düzeltildi
 
 - `optimization/replay.py` eklendi: sabit atama+sıra kararını verilen süre kaynağıyla yeniden zamanlayan ortak yardımcı (hem warm-start hem Predict→Optimize replay'i kullanıyor).

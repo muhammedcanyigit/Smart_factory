@@ -1,4 +1,5 @@
-"""İşlem süresi tahmini için feature tablosu kurar — bkz. docs/decision-log.md Phase 10.
+"""İşlem süresi ve enerji tüketimi tahmini için feature tablosu kurar — bkz.
+docs/decision-log.md Phase 10, Phase 12.
 
 ÖNEMLİ TASARIM KISITI: Operation'ın hangi SPESİFİK makineye atanacağı henüz
 bilinmiyor (o, optimizasyonun kararı — Phase 7-9). Bu yüzden Machine tablosundan
@@ -16,7 +17,10 @@ def build_feature_table(dataset: dict[str, pd.DataFrame]) -> pd.DataFrame:
     """operations + jobs join edilip, ML için düz bir feature tablosu döner.
 
     Dönüş kolonları: operation_id, required_machine_type, product_type,
-    quantity, priority, sequence_no, processing_time (target).
+    quantity, priority, sequence_no, processing_time, energy_consumption.
+    Hangi kolonların feature/target olarak kullanılacağı ml/training.py::TASKS'ta
+    tanımlı (Phase 10: processing_time target; Phase 12: energy_consumption target,
+    processing_time ise feature).
     """
     operations = dataset["operations"]
     jobs = dataset["jobs"][["job_id", "product_type", "quantity", "priority"]]
@@ -32,5 +36,6 @@ def build_feature_table(dataset: dict[str, pd.DataFrame]) -> pd.DataFrame:
             "priority",
             "sequence_no",
             "processing_time",
+            "energy_consumption",
         ]
     ]

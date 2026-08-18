@@ -83,12 +83,18 @@ Bunu kodlarken gerçek bir hata buldum ve düzelttim: planı "gerçek sürelerle
 
 Sonuç ilginç: gerçek süreleri baştan bilseydik %10.67 iyileşme sağlardık ("mükemmel bilgi" senaryosu). Ama gerçek hayatta süreleri bilmeyip tahmin ettiğimiz için, bu iyileşmenin sadece **%40.85**'ini yakalayabildik (%4.36). Yani tahmin hatasının bize gerçek bir bedeli var — bu, projenin en önemli bulgularından biri, çünkü "tahmin ne kadar iyi olursa, optimizasyon o kadar değer katar" ilişkisini sayılarla gösteriyor.
 
+## Faz 12 — İkinci Tahmin Modeli: Enerji Tüketimi
+
+Faz 10'daki aynı yöntemi, bu sefer "bir işlem ne kadar enerji harcar" sorusuna uyguladık. Bu sefer tam tersi bir sonuç çıktı: tahminler **çok başarılı** oldu (yüzde 93-99 başarı oranı). Sebebi basit: sahte veri üretirken enerjiyi zaten "süreye bağlı" şekilde üretmiştik (uzun süren iş = daha çok enerji), o yüzden "süre"yi de bir ipucu olarak modele verince model bunu kolayca yakaladı.
+
+Bir de şunu gördük: bu sefer "akıllı" yöntemler (Random Forest, Gradient Boosting) gerçekten en basit yöntemi geçti — Faz 10'un tam tersi. Yani iki fazı yan yana koyunca güzel bir ders çıktı: bazen basit yöntem yeterli/daha iyi (Faz 10), bazen karmaşık yöntem gerçekten fark yaratıyor (Faz 12) — hangisinin işe yarayacağını veriye bakmadan bilemezsin.
+
 ---
 
 ## Şu An Neredeyiz?
 
-24 aşamadan **12'sini bitirdik** (Faz 0'dan Faz 11'e kadar). Bir fabrikanın verisini ürettik, en basit planı kurduk, matematik bulmacasını kurup çözdürdük, "akıllı planın gerçekten işe yaradığını" kanıtladık, bilgisayara geçmişten öğrenip tahmin yapmayı öğrettik, ve bu tahminleri optimizasyona bağlayıp "tahmin hatasının bedelini" ölçtük.
+24 aşamadan **13'ünü bitirdik** (Faz 0'dan Faz 12'ye kadar). Bir fabrikanın verisini ürettik, en basit planı kurduk, matematik bulmacasını kurup çözdürdük, "akıllı planın gerçekten işe yaradığını" kanıtladık, bilgisayara geçmişten öğrenip tahmin yapmayı öğrettik (hem süre hem enerji için), ve tahminleri optimizasyona bağlayıp "tahmin hatasının bedelini" ölçtük.
 
 ## Sırada Ne Var?
 
-**Faz 12**: İkinci bir tahmin modeli — bu sefer işlem süresi değil, **enerji tüketimi** tahmin edilecek. Sonra Faz 13-14'te "Digital Twin" (dijital ikiz) katmanına geçeceğiz: fabrikanın anlık durumunu (hangi makine ne yapıyor, hangi işler bitti) takip eden bir sistem kuracağız.
+**Faz 13-14**: "Digital Twin" (dijital ikiz) katmanına geçeceğiz — fabrikanın anlık durumunu (hangi makine ne yapıyor, hangi işler bitti, hangi makine bakımda) takip eden bir sistem kuracağız, sonra optimizasyonun bulduğu planı bu sistem üzerinde "zaman içinde oynatacağız" (simülasyon).
