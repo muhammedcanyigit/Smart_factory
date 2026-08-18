@@ -75,12 +75,20 @@ Burada kendimi düzeltmem gerekti: sana önceden "tahminler muhtemelen çok baş
 
 Bir sürpriz daha: "daha akıllı" yöntemler (Random Forest, Gradient Boosting), çoğu zaman en basit yöntemi (Linear Regression) **geçemedi**. Bunun sebebi de az veri ve çok gürültü olan durumlarda karmaşık yöntemlerin "ezberlemeye" daha yatkın olması. Yani "karmaşık = daha iyi" her zaman doğru değilmiş — güzel bir ders oldu.
 
+## Faz 11 — "Tahmin Et → Optimize Et" Zincirini Tamamladık
+
+Faz 10'da öğrettiğimiz tahmin modelini, Faz 7-9'daki "en iyi planı bul" sistemine bağladık. Mantık şöyle: önce ML süreleri tahmin ediyor, sonra optimizasyon bu tahminlerle bir plan kuruyor, sonra da "peki bu plan GERÇEK hayatta (gerçek sürelerle) çalışsa ne olurdu" diye yeniden hesaplıyoruz.
+
+Bunu kodlarken gerçek bir hata buldum ve düzelttim: planı "gerçek sürelerle yeniden zamanlama" kısmında, bir makinenin bakımda olduğu saatleri hesaba katmayı unutmuşum. Bu, bazı planların "imkansız" (bakımdaki makineye iş vermek gibi) çıkmasına neden oluyordu. Düzelttim ve hem eskisi hem yenisi test ederek doğruladım — düzeltme aynı zamanda Faz 9'daki sonucumuzu da **iyileştirdi** (%5.22 → %10.67), çünkü sistem artık düzgün bir başlangıç noktası kullanabiliyor.
+
+Sonuç ilginç: gerçek süreleri baştan bilseydik %10.67 iyileşme sağlardık ("mükemmel bilgi" senaryosu). Ama gerçek hayatta süreleri bilmeyip tahmin ettiğimiz için, bu iyileşmenin sadece **%40.85**'ini yakalayabildik (%4.36). Yani tahmin hatasının bize gerçek bir bedeli var — bu, projenin en önemli bulgularından biri, çünkü "tahmin ne kadar iyi olursa, optimizasyon o kadar değer katar" ilişkisini sayılarla gösteriyor.
+
 ---
 
 ## Şu An Neredeyiz?
 
-24 aşamadan **11'ini bitirdik** (Faz 0'dan Faz 10'a kadar). Bir fabrikanın verisini ürettik, en basit planı kurduk, matematik bulmacasını kurup çözdürdük, "akıllı planın gerçekten işe yaradığını" kanıtladık, ve bilgisayara geçmişten öğrenip tahmin yapmayı öğrettik.
+24 aşamadan **12'sini bitirdik** (Faz 0'dan Faz 11'e kadar). Bir fabrikanın verisini ürettik, en basit planı kurduk, matematik bulmacasını kurup çözdürdük, "akıllı planın gerçekten işe yaradığını" kanıtladık, bilgisayara geçmişten öğrenip tahmin yapmayı öğrettik, ve bu tahminleri optimizasyona bağlayıp "tahmin hatasının bedelini" ölçtük.
 
 ## Sırada Ne Var?
 
-**Faz 11**: Faz 10'da öğrendiğimiz tahmin modelini, Faz 7-9'daki "en iyi planı bul" sistemine besleyeceğiz — yani "Tahmin Et → Optimize Et" zincirini tamamlayacağız.
+**Faz 12**: İkinci bir tahmin modeli — bu sefer işlem süresi değil, **enerji tüketimi** tahmin edilecek. Sonra Faz 13-14'te "Digital Twin" (dijital ikiz) katmanına geçeceğiz: fabrikanın anlık durumunu (hangi makine ne yapıyor, hangi işler bitti) takip eden bir sistem kuracağız.

@@ -20,22 +20,36 @@ Bu gözlem, ileride Phase 9'da optimizasyon sonucuyla kıyaslarken **her iki bas
 
 ## Phase 9 — Baseline vs Optimized (SMALL)
 
-`optimization/comparison.py --size small --time-limit 120` çalıştırıldı (warm-start: FCFS, Stage "final" — bkz. Phase 8 bulgusu, makespan yerine birleşik $ hedefiyle karşılaştırma yapılıyor):
+`optimization/comparison.py --size small --time-limit 120` çalıştırıldı (warm-start: FCFS, Stage "final" — bkz. Phase 8 bulgusu, makespan yerine birleşik $ hedefiyle karşılaştırma yapılıyor).
+
+> **Güncelleme (Phase 11)**: Aşağıdaki tablo, Phase 11'de bulunan bir warm-start hatası (`optimization/replay.py`'nin bakım pencerelerini hesaba katmaması, bkz. decision-log) düzeltildikten SONRAKİ, doğru sayılardır. Düzeltme öncesi ilk ölçüm %5.22 iyileşme göstermişti; warm-start düzgün kabul edilince sonuç **iyileşti** (%10.67) — bu bir hata değil, düzeltmenin beklenen sonucu.
 
 | Metric | FCFS | EDF | Optimized |
 |---|---:|---:|---:|
-| Production Time (h) | 144.31 | 144.31 | 150.23 |
-| Energy Cost ($) | 4858.60 | 4742.23 | 3837.17 |
-| Late Jobs | 3 | 7 | 6 |
-| Avg Tardiness (h) | 0.20 | 0.18 | 0.20 |
-| Avg Machine Utilization | 0.120 | 0.120 | 0.121 |
-| **Total Cost ($, weighted)** | **13051.72** | 12863.95 | **12370.73** |
+| Production Time (h) | 144.31 | 144.31 | 146.50 |
+| Energy Cost ($) | 4858.60 | 4742.23 | 3900.75 |
+| Late Jobs | 3 | 7 | 4 |
+| Avg Tardiness (h) | 0.20 | 0.18 | 0.09 |
+| Avg Machine Utilization | 0.120 | 0.120 | 0.122 |
+| **Total Cost ($, weighted)** | **13051.72** | 12863.95 | **11659.12** |
 
-**Optimized vs FCFS toplam maliyet iyileşmesi: %5.22** (solver durumu: time limit, gap %10.42 — kanıtlanmış optimal değil ama gerçek, ölçülmüş bir sonuç).
+**Optimized vs FCFS toplam maliyet iyileşmesi: %10.67** (solver durumu: time limit, gap %5.33).
 
-**Dürüst nüans — her metrik iyileşmedi**: Enerji maliyeti belirgin şekilde düştü (%21) ve bu toplam maliyeti aşağı çekti, ama Production Time arttı (144→150h) ve Late Jobs sayısı arttı (3→6). Bu beklenen bir çok-amaçlı ödünleşim: model, toplam **$ maliyetini** minimize ediyor, tek tek her metriği değil. Ağırlıklarımız (`c_time=50, c_tardy=100`) enerji tasarrufunun bazı işlerin biraz gecikmesine değdiğine "karar veriyor". Bu, `c_tardy` gibi varsayılan katsayıların sonucu doğrudan etkilediğinin somut kanıtı — Phase 19-20'deki duyarlılık analizini daha da önemli kılıyor.
+**Dürüst nüans**: Bu sefer neredeyse her metrik iyileşti (enerji %20, geciken iş 3→4 ile hemen hemen aynı, ortalama gecikme %55 azaldı) — düzeltilmiş warm-start'ın gerçekten daha iyi bir arama noktasından başladığının işareti.
 
-**Reproducibility notu**: Veri üretimi (`SEED=42`) tam deterministik, ama **solver'ın time-limit'e dayalı sonucu değildir** — aynı model, farklı çalıştırmalarda (sistem yükü, zamanlama farkları nedeniyle) hafifçe farklı ama benzer kalitede çözümler bulabilir (ör. bu tabloda $12370.73, birkaç dakika önceki bir denemede $12263.83 çıkmıştı). Bu, MIP zaman sınırlı çözümlerin bilinen bir karakteristiği — veri üretiminin reproducibility'siyle karıştırılmamalı.
+**Reproducibility notu**: Veri üretimi (`SEED=42`) tam deterministik, ama **solver'ın time-limit'e dayalı sonucu değildir** — aynı model, farklı çalıştırmalarda (sistem yükü, zamanlama farkları nedeniyle) hafifçe farklı ama benzer kalitede çözümler bulabilir. Bu, MIP zaman sınırlı çözümlerin bilinen bir karakteristiği — veri üretiminin reproducibility'siyle karıştırılmamalı.
+
+## Phase 11 — Predict → Optimize (SMALL)
+
+`ml/predict_optimize.py --size small --time-limit 120`: Phase 10'un ML modeli süreleri tahmin etti, optimizasyon bu tahminle plan kurdu, plan GERÇEK sürelerle yeniden zamanlandı (`optimization/replay.py`) ve öyle değerlendirildi:
+
+| Senaryo | Total Cost ($) | FCFS'e göre iyileşme |
+|---|---:|---:|
+| FCFS (baseline) | 13051.72 | — |
+| **ML-Predicted → Optimize → gerçek sürede çalıştır** | **12482.86** | **%4.36** |
+| Ground-Truth → Optimize ("mükemmel bilgi", Phase 9) | 11659.12 | %10.67 |
+
+**Yorum**: ML tabanlı optimizasyon, teorik maksimum iyileşmenin (mükemmel bilgiyle elde edilebilecek %10.67) yalnızca **%40.85**'ini yakalayabildi. Aradaki fark (%59.15), Phase 10'daki ML tahmin hatasının (R² 0.54) doğrudan maliyetidir — "tahmin ne kadar iyi olursa, optimizasyon o kadar değer katar" ilişkisinin somut, ölçülmüş kanıtı.
 
 ## Planlanan İçerik (Phase 19-20)
 

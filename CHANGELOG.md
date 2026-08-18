@@ -2,6 +2,15 @@
 
 Bu dosya, projede yapılan önemli değişikliklerin kaydını tutar. En yeni değişiklik en üstte. Format ve güncelleme kuralı için bkz. [CLAUDE.md](CLAUDE.md).
 
+## 2026-08-19 — Phase 11: Predict→Optimize + kritik warm-start hatası düzeltildi
+
+- `optimization/replay.py` eklendi: sabit atama+sıra kararını verilen süre kaynağıyla yeniden zamanlayan ortak yardımcı (hem warm-start hem Predict→Optimize replay'i kullanıyor).
+- `ml/predict_optimize.py` eklendi: ML tahmin eder → optimize eder → GERÇEK sürelerle yeniden değerlendirir.
+- **Kritik hata bulundu/düzeltildi**: `optimization/warmstart.py`'nin Phase 11 için yeniden yazılan versiyonu, `replay_schedule`'da bakım pencerelerini hesaba katmıyordu — bu, SMALL+Stage"final"de warm-start'ın infeasible sayılıp reddedilmesine yol açtı (Phase 7'deki soruna geri dönüş riski). `build_maintenance_lookup` ile düzeltildi, minik örnek + SMALL yeniden doğrulandı.
+- **Yan fayda**: Düzeltme, Phase 9'un SMALL sonucunu da iyileştirdi (%5.22 → %10.67) — warm-start artık düzgün kabul ediliyor. `docs/experiments.md` güncellendi.
+- `optimization/native_solver.py`: ikili/tamsayı değişkenler artık yuvarlanıyor, gürültülü Pyomo domain uyarıları temizlendi.
+- **Phase 11 sonucu**: ML tahmin hatası nedeniyle, teorik maksimum iyileşmenin (%10.67) sadece %40.85'i yakalanabildi (%4.36). `docs/decision-log.md` ve `docs/experiments.md`'ye detaylı yazıldı.
+
 ## 2026-08-18 — Phase 10: ML işlem süresi tahmini
 
 - `preprocessing/features.py`: operations+jobs join, feature tablosu (Machine tablosundan bilerek join yapılmadı — spesifik makine ataması henüz yok).

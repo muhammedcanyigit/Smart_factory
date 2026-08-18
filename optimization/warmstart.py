@@ -1,14 +1,21 @@
 """Baseline planından (bkz. baseline/scheduler.py) MILP için warm-start (başlangıç
-çözümü) üretir — bkz. docs/decision-log.md Phase 8.
+çözümü) üretir — bkz. docs/decision-log.md Phase 8, Phase 11.
 
 Neden: Phase 8'deki Big-M sıkılaştırması, "hiç feasible çözüm bulunamama" sorununu
 çözdü ama solver'ın sıfırdan aradığı en iyi çözüm (165.70h) hâlâ baseline'dan
 (144.31h) kötüydü. Elimizde zaten geçerli bir çözüm (baseline) varken bunu
 solver'a başlangıç noktası olarak vermemek matematiksel israf.
 
-Baseline'ın MILP'in TÜM kısıtlarını (C1-C8) sağladığı Phase 3'te doğrulanmıştı
-(makine çakışması yok, sıra ihlali yok, bakım çakışması yok) — bu yüzden warm
-start olarak kullanmak güvenli.
+ÖNEMLİ (Phase 11'de düzeltildi): S/C warm-start değerleri artık baseline
+schedule'ın HAM zamanlarından değil, modelin KENDİ süre parametresinden
+(`data["p"]`) — `optimization/replay.py::replay_schedule` ile — yeniden
+hesaplanıyor. Sebep: Phase 11'den itibaren model bazen GERÇEK süre yerine ML
+TAHMİNİ süre kullanacak; baseline'ın (gerçek sürelerle üretilmiş) ham
+zamanlarını doğrudan vermek, `C[o] = S[o] + p_o/eff[m]` eşitliğini ihlal edip
+warm-start'ın "infeasible" sayılıp atlanmasına yol açabilirdi. Baseline artık
+sadece "hangi operasyon hangi makineye, hangi sırayla" bilgisini (yapısal
+karar) veriyor; zamanlama, modelin kendi süre kaynağıyla tutarlı yeniden
+kuruluyor.
 """
 
 from __future__ import annotations
@@ -16,19 +23,25 @@ from __future__ import annotations
 import pandas as pd
 import pyomo.environ as pyo
 
-from data_generator.generator import HORIZON_START
+from optimization.replay import build_maintenance_lookup, replay_schedule
 
 
 def apply_warm_start(model: pyo.ConcreteModel, data: dict, baseline_schedule: pd.DataFrame) -> None:
     horizon_hours = data["horizon_hours"]
-    bs = baseline_schedule.set_index("operation_id")
+    bs = baseline_schedule.sort_values("start_time")
 
-    def to_hours(ts) -> float:
-        return (pd.Timestamp(ts) - HORIZON_START).total_seconds() / 3600
+    assigned_machine = bs.set_index("operation_id")["machine_id"].to_dict()
+    order = bs["operation_id"].tolist()
 
-    assigned_machine = bs["machine_id"].to_dict()
-    start_hours = {o: max(0.0, min(to_hours(bs.loc[o, "start_time"]), horizon_hours)) for o in bs.index}
-    end_hours = {o: max(0.0, min(to_hours(bs.loc[o, "end_time"]), horizon_hours)) for o in bs.index}
+    start_hours, end_hours = replay_schedule(
+        assigned_machine=assigned_machine,
+        order=order,
+        op_job=data["op_job"],
+        release=data["release"],
+        durations=data["p"],
+        eff=data["eff"],
+        maintenance_by_machine=build_maintenance_lookup(data["maint_list"]),
+    )
 
     for o in data["O"]:
         for m in data["eligible_om"][o]:

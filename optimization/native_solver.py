@@ -72,7 +72,16 @@ def solve_native(
         name = smap.byObject.get(id(var))
         if name is None or name not in name_to_col:
             continue
-        var.value = col_value[name_to_col[name]]
+        val = col_value[name_to_col[name]]
+        # HiGHS'in ham çözümü ikili/tamsayı değişkenler için 0.999999... gibi
+        # sayısal gürültü içerebilir (LP toleransı); yuvarlanmazsa Pyomo domain
+        # uyarısı verir. Alt sınırın hafif altına düşen sürekli değişkenler
+        # (ör. T[j] = -1e-15) de sınıra kırpılıyor.
+        if var.is_binary() or var.is_integer():
+            val = round(val)
+        elif var.lb is not None and val < var.lb:
+            val = var.lb
+        var.value = val
 
     info = h.getInfo()
     return {
