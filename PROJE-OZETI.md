@@ -67,12 +67,20 @@ Bir de şunu keşfettik: basit plan (Faz 3) zaten "en hızlı" olma konusunda ne
 
 Basit planla, akıllı (optimize edilmiş) planı yan yana koyduk. Sonuç: akıllı plan, toplam maliyeti (süre + elektrik + gecikme cezası, hepsi dolar cinsinden) **%5.22 azalttı**. Elektrik masrafı %21 düştü. Ama dürüst olmak gerekirse, her şey iyileşmedi — üretim süresi biraz uzadı, geciken iş sayısı biraz arttı. Çünkü bilgisayar "toplamda en ucuza" gelen planı arıyor, tek tek her şeyi değil.
 
+## Faz 10 — Bilgisayara "Tahmin Etmeyi" Öğrettik
+
+Şu ana kadar "bir işlem ne kadar sürer" bilgisini biz uydurmuştuk (sahte veri üretirken direkt yazmıştık). Şimdi bilgisayara bu bilgiyi **geçmiş örneklerden öğrenmesini** öğrettik — buna makine öğrenmesi (machine learning) deniyor. Üç farklı "öğrenme yöntemi" denedik: en basiti (Linear Regression), ve iki tane daha "akıllı" olanı (Random Forest, Gradient Boosting).
+
+Burada kendimi düzeltmem gerekti: sana önceden "tahminler muhtemelen çok başarılı çıkacak çünkü verimiz fazla temiz" demiştim — **yanıldım**. Gerçekte tahminler orta seviyede başarılı çıktı. Sebebini bulduk: sahte veri üretirken bazı süreleri tamamen **rastgele** (belirli bir aralıkta zar atar gibi) belirlemişiz — yani bu kısmı hiçbir model tahmin edemez, çünkü gerçekten şansa bağlı. Bu bir hata değil, dürüst bir bulgu.
+
+Bir sürpriz daha: "daha akıllı" yöntemler (Random Forest, Gradient Boosting), çoğu zaman en basit yöntemi (Linear Regression) **geçemedi**. Bunun sebebi de az veri ve çok gürültü olan durumlarda karmaşık yöntemlerin "ezberlemeye" daha yatkın olması. Yani "karmaşık = daha iyi" her zaman doğru değilmiş — güzel bir ders oldu.
+
 ---
 
 ## Şu An Neredeyiz?
 
-24 aşamadan **10'unu bitirdik** (Faz 0'dan Faz 9'a kadar). Bir fabrikanın verisini ürettik, en basit planı kurduk, matematik bulmacasını kurup çözdürdük, ve "akıllı planın gerçekten işe yaradığını" kanıtladık.
+24 aşamadan **11'ini bitirdik** (Faz 0'dan Faz 10'a kadar). Bir fabrikanın verisini ürettik, en basit planı kurduk, matematik bulmacasını kurup çözdürdük, "akıllı planın gerçekten işe yaradığını" kanıtladık, ve bilgisayara geçmişten öğrenip tahmin yapmayı öğrettik.
 
 ## Sırada Ne Var?
 
-**Faz 10**: Şu ana kadar "bir işlem ne kadar sürer" bilgisini biz uydurduk (sahte veri üretirken). Şimdi bunun yerine, bilgisayara geçmiş verilerden **öğrenmesini** öğreteceğiz — yapay zeka/makine öğrenmesi devreye giriyor. Sonra bu tahminleri, Faz 7-9'da kurduğumuz "en iyi planı bul" sistemine besleyeceğiz.
+**Faz 11**: Faz 10'da öğrendiğimiz tahmin modelini, Faz 7-9'daki "en iyi planı bul" sistemine besleyeceğiz — yani "Tahmin Et → Optimize Et" zincirini tamamlayacağız.

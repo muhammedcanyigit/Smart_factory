@@ -2,6 +2,15 @@
 
 Bu dosya, projede yapılan önemli değişikliklerin kaydını tutar. En yeni değişiklik en üstte. Format ve güncelleme kuralı için bkz. [CLAUDE.md](CLAUDE.md).
 
+## 2026-08-18 — Phase 10: ML işlem süresi tahmini
+
+- `preprocessing/features.py`: operations+jobs join, feature tablosu (Machine tablosundan bilerek join yapılmadı — spesifik makine ataması henüz yok).
+- `ml/training.py`: Linear Regression / Random Forest / Gradient Boosting, ortak ColumnTransformer ön-işleme, SEED=42 train/test split.
+- `ml/evaluation.py`: MAE/RMSE/R².
+- `ml/prediction.py`: orkestratör, en iyi modeli `ml/models/`'e kaydediyor.
+- **SMALL/MEDIUM/LARGE'da çalıştırıldı**: R² 0.24-0.64 arası — beklediğimin (çok yüksek R²) tam tersi çıktı, düzeltildi. Kök neden: generator'da `base_time` her operasyon için feature'lardan bağımsız rastgele çekiliyor (irreducible noise). Random Forest/Gradient Boosting, Linear Regression'ı çoğunlukla geçemedi — ayarlanmamış ağaç modellerinin küçük/gürültülü veride overfit etmesi.
+- `docs/decision-log.md`'ye detaylı yazıldı.
+
 ## 2026-08-17 — PROJE-OZETI.md eklendi
 
 - Yeni dosya (ana klasörde): `PROJE-OZETI.md` — Phase 0-9'u hiç teknik terim kullanmadan, hikaye anlatır gibi özetliyor. Kullanıcının "en son nerede kaldık" diye hızlıca hatırlaması için.
