@@ -89,12 +89,18 @@ Faz 10'daki aynı yöntemi, bu sefer "bir işlem ne kadar enerji harcar" sorusun
 
 Bir de şunu gördük: bu sefer "akıllı" yöntemler (Random Forest, Gradient Boosting) gerçekten en basit yöntemi geçti — Faz 10'un tam tersi. Yani iki fazı yan yana koyunca güzel bir ders çıktı: bazen basit yöntem yeterli/daha iyi (Faz 10), bazen karmaşık yöntem gerçekten fark yaratıyor (Faz 12) — hangisinin işe yarayacağını veriye bakmadan bilemezsin.
 
+## Faz 13 — Fabrikanın "Anlık Durum Tablosu"nu Kurduk
+
+"Digital Twin" (dijital ikiz) dediğimiz şey aslında karmaşık bir şey değil: fabrikanın o an nasıl göründüğünü tutan bir tablo gibi düşün. Hangi makine boşta, hangi makine çalışıyor, hangi makine bakımda; hangi iş sırada bekliyor, hangi iş bitti, hangi iş gecikti; toplam ne kadar enerji harcandı. Bu fazda bu "tabloyu" kurduk ve fabrikanın **başlangıç anındaki** (henüz hiçbir şey olmamışken) halini doğru şekilde gösterdiğini test ettik — 10 makinenin 10'u da boşta, 50 işin 50'si de sırada bekliyor gibi.
+
+Bu fazda henüz "zamanı ileri sarmadık" — yani "3 saat sonra ne olur" diye sormadık, sadece "t=0 anında fabrika nasıl görünür" diye kurduk. Zamanı ilerletme, bir sonraki fazın işi.
+
 ---
 
 ## Şu An Neredeyiz?
 
-24 aşamadan **13'ünü bitirdik** (Faz 0'dan Faz 12'ye kadar). Bir fabrikanın verisini ürettik, en basit planı kurduk, matematik bulmacasını kurup çözdürdük, "akıllı planın gerçekten işe yaradığını" kanıtladık, bilgisayara geçmişten öğrenip tahmin yapmayı öğrettik (hem süre hem enerji için), ve tahminleri optimizasyona bağlayıp "tahmin hatasının bedelini" ölçtük.
+24 aşamadan **14'ünü bitirdik** (Faz 0'dan Faz 13'e kadar). Bir fabrikanın verisini ürettik, en basit planı kurduk, matematik bulmacasını kurup çözdürdük, "akıllı planın gerçekten işe yaradığını" kanıtladık, bilgisayara geçmişten öğrenip tahmin yapmayı öğrettik (hem süre hem enerji için), tahminleri optimizasyona bağladık, ve fabrikanın anlık durumunu tutan bir sistem kurduk.
 
 ## Sırada Ne Var?
 
-**Faz 13-14**: "Digital Twin" (dijital ikiz) katmanına geçeceğiz — fabrikanın anlık durumunu (hangi makine ne yapıyor, hangi işler bitti, hangi makine bakımda) takip eden bir sistem kuracağız, sonra optimizasyonun bulduğu planı bu sistem üzerinde "zaman içinde oynatacağız" (simülasyon).
+**Faz 14 — Simülasyon**: Optimizasyonun bulduğu planı, Faz 13'te kurduğumuz "anlık durum tablosu" üzerinde **zaman içinde oynatacağız** — "08:00'de Makine 1, İş 12'yi başlattı, 08:35'te bitirdi, Makine 2 boşaldı..." gibi adım adım ilerleyen bir gösterim. Bu, planın fabrika hayatına nasıl dönüştüğünü görmemizi sağlayacak.

@@ -2,6 +2,12 @@
 
 Bu dosya, projede yapılan önemli değişikliklerin kaydını tutar. En yeni değişiklik en üstte. Format ve güncelleme kuralı için bkz. [CLAUDE.md](CLAUDE.md).
 
+## 2026-08-19 — Phase 13: Digital Twin state katmanı
+
+- `digital_twin/machine.py` (MachineState, mevcut MachineStatus enum'u yeniden kullanıldı), `digital_twin/job.py` (JobState/JobStatus), `digital_twin/state.py` (FactoryState — snapshot/utilization/completed/delayed sorguları), `digital_twin/factory.py` (DigitalTwin — başlangıç durumu kurar, reset()).
+- Bu fazda zamanı ilerletme mantığı YOK — bilinçli olarak Phase 14'e bırakıldı.
+- SMALL/MEDIUM/LARGE'da doğrulandı: başlangıç durumu dataset'le eşleşiyor (10/50, 20/250, 50/1000), t=0'da tüm makineler idle/tüm işler queued, reset() tutarlı.
+
 ## 2026-08-19 — Phase 12: Enerji tüketimi tahmini (2. ML modeli)
 
 - `ml/training.py` genelleştirildi (`TASKS` sözlüğü, `task` parametresi) — processing_time ve energy_consumption aynı altyapıyı paylaşıyor. `preprocessing/features.py` her iki hedef için de gereken kolonları döndürüyor. `ml/prediction.py`'ye `--task` flag'i eklendi.
