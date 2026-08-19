@@ -51,6 +51,20 @@ Bu gözlem, ileride Phase 9'da optimizasyon sonucuyla kıyaslarken **her iki bas
 
 **Yorum**: ML tabanlı optimizasyon, teorik maksimum iyileşmenin (mükemmel bilgiyle elde edilebilecek %10.67) yalnızca **%40.85**'ini yakalayabildi. Aradaki fark (%59.15), Phase 10'daki ML tahmin hatasının (R² 0.54) doğrudan maliyetidir — "tahmin ne kadar iyi olursa, optimizasyon o kadar değer katar" ilişkisinin somut, ölçülmüş kanıtı.
 
+## Phase 15 — What-If Senaryolar (SMALL)
+
+`simulation/scenarios.py`, orijinal (senaryosuz) optimize edilmiş plan ($11659.12) ile 5 farklı senaryo çalıştırması karşılaştırıldı:
+
+| Senaryo | Total Cost | Değişim | Not |
+|---|---:|---:|---|
+| Machine M003 failure (SMALL'daki tek Assembly makinesi) | — | — | **INFEASIBLE** — hiçbir geçerli plan yok |
+| Machine M001 failure (3 CNC'den biri, yedekli) | $12747.22 | +%9.3 | Geçerli ama daha pahalı yeni plan bulundu |
+| Energy price +20% | $14023.44 | +%20.3 | Enerji maliyeti +%49; production time/late jobs hafifçe iyileşti |
+| Deadline shift −12h | $38011.34 | +%226 | Late jobs 4→41/50 — deadline'lara aşırı duyarlılık |
+| Maintenance duration +50% | $14039.78 | +%20.4 | Late jobs 4→5, tardiness 0.09h→0.39h |
+
+**En önemli bulgu**: Yedeksiz kritik makine (M003) arızası sistemi tamamen durdururken (infeasible), yedekli makine (M001) arızası sadece maliyeti artırıyor. Bu, "tek nokta bağımlılığı" riskinin somut, ölçülmüş bir kanıtı — fabrika tasarımı için doğrudan uygulanabilir bir öneri (kritik makine tiplerinde yedeklilik).
+
 ## Planlanan İçerik (Phase 19-20)
 
 - Deney tasarımı: SMALL (10 makine/50 job), MEDIUM (20 makine/250 job), LARGE (50 makine/1000 job)

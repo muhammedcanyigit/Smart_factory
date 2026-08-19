@@ -43,11 +43,17 @@ def apply_warm_start(model: pyo.ConcreteModel, data: dict, baseline_schedule: pd
         maintenance_by_machine=build_maintenance_lookup(data["maint_list"]),
     )
 
+    # Bazı senaryolarda (ör. bir makine tipinin tek örneği tüm ufuk boyunca
+    # kullanılamaz hale gelirse, bkz. Phase 15) baseline'ın kendisi de ufkun
+    # dışına taşan bir zamanlama üretebilir. Bu durumda warm-start değeri
+    # modelin sert sınırına (0, horizon_hours) kırpılıyor — asıl çözümsüzlük
+    # (infeasibility) gizlenmiyor, solver yine de bunu doğru şekilde tespit
+    # edecek; burada sadece gereksiz Pyomo domain uyarıları önleniyor.
     for o in data["O"]:
         for m in data["eligible_om"][o]:
             model.x[o, m].value = 1.0 if assigned_machine.get(o) == m else 0.0
-        model.S[o].value = start_hours[o]
-        model.C[o].value = end_hours[o]
+        model.S[o].value = min(start_hours[o], horizon_hours)
+        model.C[o].value = min(end_hours[o], horizon_hours)
 
     for o1, o2 in data["y_pairs"]:
         model.y[o1, o2].value = 1.0 if start_hours[o1] <= start_hours[o2] else 0.0

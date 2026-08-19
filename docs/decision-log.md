@@ -167,3 +167,23 @@ Her fazın sonunda kısa bir madde eklenir: **Öncüller** (o faza girerken vars
 - **Uygulama**: `simulation/events.py` (Event tipi: OPERATION_START/END, MAINTENANCE_START/END), `simulation/engine.py` (SimulationEngine — event queue kurar, aynı andaki END'leri START'lardan önce işler, `step()/run_to()/run_all()` ile ilerler).
 - **Doğrulama — çapraz kontrol (en güçlü doğrulama yöntemi)**: FCFS baseline planı simülasyondan geçirilip, Faz 3'ün BAĞIMSIZ `baseline/metrics.py::summarize()` hesaplamasıyla karşılaştırıldı — toplam enerji (2211.27 kWh), enerji maliyeti ($4858.60), geciken iş sayısı (3) **birebir** eşleşti. Simülasyon sonunda tüm işlerin tamamlandığı (queued/running=0) doğrulandı.
 - **Küçük bir tanım farkı bulundu, açıklandı (hata değil)**: Simülasyon sonunda `avg_machine_utilization=0.14` iken baseline metrics `0.12` veriyordu. Sebebi: `FactoryState.machine_utilization()` paydayı `current_time` (simülasyonun bittiği an, 144.31h) alıyor, `baseline/metrics.py::compute_utilization` ise sabit `horizon_hours` (168h) kullanıyor — iki farklı, kendi içinde tutarlı tanım (`0.12 × 168/144.31 = 0.1397 ≈ 0.14` ile doğrulandı). Karıştırılmaması için burada not düşüldü.
+
+## Phase 15 — What-If Scenario Engine
+
+- **Öncül**: Minimum 3 senaryo istenmişti (orijinal projede 6 örnek: makine arızası, enerji fiyatı, sipariş artışı, deadline sıkılaşması, bakım süresi uzaması, kapasite azalması).
+- **Kapsam kararı (dürüstçe)**: "Sipariş artışı" (quantity'nin processing_time'a etkisi sadece veri üretimi anında hesaba katılıyor, üretim sonrası değiştirmek otomatik yansımıyor) ve "kapasite azalması" (Phase 5'te capacity'nin aktif kısıt olmadığına karar verilmişti — hiçbir gözlemlenebilir etkisi olmazdı) kapsam dışı bırakıldı. Bunun yerine 4 tam anlamlı senaryo uygulandı: machine_failure, energy_price_change, deadline_shift, maintenance_duration_change.
+- **Uygulama**: `simulation/scenarios.py` — her senaryo dataset'in değiştirilmiş bir kopyasını döner; `optimization/comparison.py::run_comparison` bir `dataset` parametresi kabul edecek şekilde genişletildi (senaryolu dataset de aynı altyapıdan geçebilsin diye).
+- **Kritik hata (bulundu, düzeltildi)**: M003 (SMALL'daki tek Assembly makinesi, Phase 3'ten beri bilinen darboğaz) tüm ufuk boyunca "arızalı" yapılınca, baseline (warm-start için kullanılıyor) o tipteki operasyonları makul bir zamana yerleştiremeyip ufkun çok ötesine (217+ saat) taşan zamanlar üretti — bu da `S/C` değişkenlerinin sert sınırını (`0,168`) ihlal edip onlarca Pyomo uyarısına ve sonunda çökme hatasına yol açtı.
+  - **Kök neden ayrımı**: Bu bir kod hatası değil — matematiksel olarak GERÇEKTEN çözümsüz (infeasible) bir durum (tek Assembly makinesi tüm ufuk boyunca yoksa, o tipteki hiçbir operasyon planlanamaz). Sorun, sistemin bunu zarifçe raporlamak yerine çökmesiydi.
+  - **Çözüm**: `optimization/comparison.py::run_comparison`, çözüm bulunamadığında (`has_feasible_solution_native`) artık `{"feasible": False, "solver_status": ...}` döndürüyor, exception fırlatmıyor. `optimization/warmstart.py`'de warm-start değerleri de `horizon_hours`'a kırpılıyor (asıl çözümsüzlüğü gizlemeden, sadece gereksiz uyarıları önlüyor).
+- **Sonuçlar (SMALL, "final" hedefiyle optimize edilmiş plan, orijinal vs senaryo)**:
+
+| Senaryo | Total Cost: Önce → Sonra | Not |
+|---|---|---|
+| Machine M003 failure (yedeksiz) | — | **INFEASIBLE** — hiçbir geçerli plan yok |
+| Machine M001 failure (yedekli, 3 CNC'den biri) | $11,659.12 → $12,747.22 (+%9.3) | Sistem yeni, daha pahalı ama geçerli bir plan buldu |
+| Energy price +20% | $11,659.12 → $14,023.44 (+%20.3) | Enerji maliyeti $3900→$5830 (+%49); ilginç: production time ve late jobs hafifçe DÜŞTÜ (144.31, 3) — enerji göreceli olarak daha pahalı olunca model zamanlama/gecikmeyi görece daha çok önemsedi |
+| Deadline shift −12h (daha sıkı) | $11,659.12 → $38,011.34 (+%226) | Geciken iş 4'ten **41'e** çıktı (50 işten) — SMALL'daki deadline'ların ne kadar gevşek/hassas olduğunu gösteriyor |
+| Maintenance duration +50% | $11,659.12 → $14,039.78 (+%20.4) | Late jobs 4→5, tardiness 0.09h→0.39h |
+
+- **Genel değerlendirme**: İki uç örnek (M003 infeasible vs M001 feasible-ama-pahalı) somut bir iş sonucu gösteriyor: "kritik makine tiplerinde tek nokta bağımlılığı olmamalı" — yedeği olmayan bir makinenin arızası sistemi tamamen durdururken, yedeği olan bir makinenin arızası sadece maliyeti artırıyor. Deadline senaryosu ise sistemin deadline baskısına ne kadar duyarlı olduğunu (4→41 geciken iş) çarpıcı şekilde gösteriyor.

@@ -2,6 +2,14 @@
 
 Bu dosya, projede yapılan önemli değişikliklerin kaydını tutar. En yeni değişiklik en üstte. Format ve güncelleme kuralı için bkz. [CLAUDE.md](CLAUDE.md).
 
+## 2026-08-19 — Phase 15: What-If senaryo motoru + infeasibility hatası düzeltildi
+
+- `simulation/scenarios.py`: 4 senaryo (machine_failure, energy_price_change, deadline_shift, maintenance_duration_change). "Orders +X%" ve "Capacity -X%" kapsam dışı bırakıldı, gerekçesi belgelendi.
+- `optimization/comparison.py::run_comparison`, opsiyonel `dataset` parametresi kabul edecek şekilde genişletildi (senaryolu dataset aynı altyapıdan geçebilsin diye).
+- **Kritik hata bulundu/düzeltildi**: M003 (SMALL'daki tek Assembly makinesi) tüm ufuk boyunca arızalandığında, baseline ufkun ötesine taşan zamanlar üretip warm-start'ı bozuyor, sistem çöküyordu. Kök neden: gerçekten matematiksel olarak çözümsüz (infeasible) bir durum, kod hatası değil. `run_comparison` artık bunu `{"feasible": False}` ile zarifçe raporluyor; `warmstart.py`'de değerler sınıra kırpılıyor.
+- **Sonuçlar (SMALL)**: M003 (yedeksiz) → infeasible; M001 (yedekli) → +%9.3 maliyet; enerji +20% → +%20.3; deadline -12h → +%226 (late jobs 4→41); bakım +50% → +%20.4.
+- `docs/decision-log.md` ve `docs/experiments.md`'ye detaylı yazıldı.
+
 ## 2026-08-19 — Phase 14: Simülasyon motoru
 
 - `simulation/events.py` (Event tipi), `simulation/engine.py` (SimulationEngine — discrete-event, `step/run_to/run_all`).

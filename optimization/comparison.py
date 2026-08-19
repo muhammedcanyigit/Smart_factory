@@ -35,18 +35,45 @@ def compute_total_cost(schedule: pd.DataFrame, dataset: dict, horizon_hours: int
     )
 
 
-def run_comparison(size: str = "small", time_limit_seconds: int = 120, config_path: str = "config/config.yaml"):
+def run_comparison(
+    size: str = "small",
+    time_limit_seconds: int = 120,
+    config_path: str = "config/config.yaml",
+    dataset: dict | None = None,
+):
+    """`dataset` verilmezse (normal kullanım) size'a göre yeniden üretilir.
+    Verilirse (ör. Phase 15 what-if senaryoları) doğrudan o kullanılır — böylece
+    senaryolu bir dataset üzerinde de aynı karşılaştırma altyapısı çalışabilir."""
     config = yaml.safe_load(open(config_path))
     horizon_hours = config["dataset"]["horizon_hours"]
     weights = config["optimization"]["objective_weights"]
 
-    dataset = generate_dataset(size=size, config_path=config_path)
+    if dataset is None:
+        dataset = generate_dataset(size=size, config_path=config_path)
 
     fcfs_schedule = run_baseline(dataset, strategy="fcfs")
     edf_schedule = run_baseline(dataset, strategy="edf")
 
     model, data = build_model(dataset, config, stage="final")
     solve_info = solve_with_warm_start(model, data, fcfs_schedule, time_limit_seconds=time_limit_seconds)
+
+    from optimization.native_solver import has_feasible_solution_native
+
+    if not has_feasible_solution_native(solve_info):
+        # Gerçek, önemli bir durum — gizlenmiyor: bazı senaryolarda (ör. tek bir
+        # makine tipinin tek örneği tüm ufuk boyunca kullanılamaz hale gelirse)
+        # model matematiksel olarak çözümsüz (infeasible) olabilir. Bkz.
+        # docs/decision-log.md Phase 15.
+        metrics = {
+            "FCFS": summarize(fcfs_schedule, dataset, horizon_hours),
+            "EDF": summarize(edf_schedule, dataset, horizon_hours),
+            "Optimized": {"feasible": False, "solver_status": solve_info.get("model_status_str")},
+        }
+        for name, sched in (("FCFS", fcfs_schedule), ("EDF", edf_schedule)):
+            metrics[name]["total_cost"] = round(compute_total_cost(sched, dataset, horizon_hours, weights), 2)
+        schedules = {"FCFS": fcfs_schedule, "EDF": edf_schedule, "Optimized": None}
+        return metrics, schedules
+
     opt_schedule = extract_schedule(model, data)
 
     schedules = {"FCFS": fcfs_schedule, "EDF": edf_schedule, "Optimized": opt_schedule}
@@ -61,6 +88,11 @@ def run_comparison(size: str = "small", time_limit_seconds: int = 120, config_pa
 
 
 def print_comparison_table(metrics: dict) -> None:
+    if metrics["Optimized"].get("feasible") is False:
+        print(f"Optimizasyon ÇÖZÜMSÜZ (infeasible) — durum: {metrics['Optimized']['solver_status']}")
+        print("Bu, verilen kısıtlar altında hiçbir geçerli plan olmadığı anlamına gelir (ör. bir makine tipinin tek örneği tamamen kullanılamaz hale gelmiş olabilir).")
+        return
+
     fcfs_cost = metrics["FCFS"]["total_cost"]
     opt_cost = metrics["Optimized"]["total_cost"]
     improvement = 100 * (fcfs_cost - opt_cost) / fcfs_cost if fcfs_cost else 0.0

@@ -101,12 +101,20 @@ Faz 13'teki "anlık durum tablosu"nu gerçekten çalışır hale getirdik. Şimd
 
 En sağlam doğrulamayı burada yaptık: aynı planı hem Faz 3'ün basit hesap yöntemiyle hem de bu yeni simülasyonla ayrı ayrı ölçtük — toplam enerji, enerji maliyeti, geciken iş sayısı **birebir aynı** çıktı. İki bağımsız yöntemin aynı sonucu vermesi, ikisinin de doğru çalıştığının güçlü bir kanıtı.
 
+## Faz 15 — "Ya Böyle Olursa?" Sorularını Sorabiliyoruz
+
+Kullanıcının senaryolar deneyebileceği bir sistem kurduk: "Makine 3 bozulursa ne olur?", "Enerji fiyatı %20 artarsa ne olur?", "Teslim tarihleri 12 saat erkene çekilirse ne olur?" gibi. Sistem senaryoyu uyguluyor, optimizasyonu baştan çalıştırıyor, sonucu orijinal planla karşılaştırıyor.
+
+Burada gerçek ve öğretici bir problemle karşılaştım: SMALL fabrikamızda bir tip makineden (Assembly) sadece **1 tane** vardı (Faz 3'te bunu darboğaz olarak zaten bulmuştuk). Bu tek makineyi "tamamen bozulmuş" yaptığımda, sistem çöktü — çünkü matematiksel olarak gerçekten **çözümsüz** bir durum oluştu (o tip işi yapacak hiçbir makine kalmadı). Bunu düzelttim: artık sistem çökmüyor, "bu senaryoda hiçbir geçerli plan yok" diye düzgün bir cevap veriyor. Sonra aynı testi **yedeği olan** bir makineyle (3 tane CNC'den biri) tekrarladım — bu sefer sistem sorunsuz, sadece biraz daha pahalı bir plan buldu.
+
+Bu ikisi yan yana çok değerli bir iş sonucu veriyor: **yedeği olmayan kritik bir makinenin arızası fabrikayı tamamen durdurabilir, yedeği olan bir makinenin arızası sadece maliyeti artırır.** Deadline'ları sıkılaştırma senaryosu da çarpıcıydı: 12 saat erkene çekince geciken iş sayısı 4'ten 41'e (50 işten!) fırladı.
+
 ---
 
 ## Şu An Neredeyiz?
 
-24 aşamadan **15'ini bitirdik** (Faz 0'dan Faz 14'e kadar). Bir fabrikanın verisini ürettik, en basit planı kurduk, matematik bulmacasını kurup çözdürdük, "akıllı planın gerçekten işe yaradığını" kanıtladık, bilgisayara geçmişten öğrenip tahmin yapmayı öğrettik, tahminleri optimizasyona bağladık, fabrikanın anlık durumunu tutan bir sistem kurduk, ve bu sistemi planı zaman içinde oynatan bir simülasyona dönüştürdük.
+24 aşamadan **16'sını bitirdik** (Faz 0'dan Faz 15'e kadar). Bir fabrikanın verisini ürettik, en basit planı kurduk, matematik bulmacasını kurup çözdürdük, "akıllı planın gerçekten işe yaradığını" kanıtladık, bilgisayara geçmişten öğrenip tahmin yapmayı öğrettik, tahminleri optimizasyona bağladık, fabrikanın anlık durumunu tutan bir sistem kurduk, bu sistemi planı zaman içinde oynatan bir simülasyona dönüştürdük, ve "ya böyle olursa" senaryolarını test edebilen bir sistem kurduk.
 
 ## Sırada Ne Var?
 
-**Faz 15 — What-If Senaryolar**: Kullanıcının "Makine 3 bozulursa ne olur?", "Enerji fiyatı %20 artarsa ne olur?" gibi sorular sorabileceği bir sistem kuracağız — senaryoyu uygulayıp optimizasyonu yeniden çalıştıracağız, sonucu orijinal planla karşılaştıracağız.
+**Faz 16 — Tüm Döngünün Entegrasyonu**: Şimdiye kadar kurduğumuz parçaları (veri → tahmin → optimizasyon → simülasyon → senaryo) tek, uçtan uca çalışan bir akışa bağlayacağız.
