@@ -2,6 +2,12 @@
 
 Bu dosya, projede yapılan önemli değişikliklerin kaydını tutar. En yeni değişiklik en üstte. Format ve güncelleme kuralı için bkz. [CLAUDE.md](CLAUDE.md).
 
+## 2026-08-19 — Phase 14: Simülasyon motoru
+
+- `simulation/events.py` (Event tipi), `simulation/engine.py` (SimulationEngine — discrete-event, `step/run_to/run_all`).
+- Çapraz doğrulama: FCFS planı simülasyondan geçirilip Faz 3'ün bağımsız metrik hesaplamasıyla karşılaştırıldı — enerji, maliyet, geciken iş sayısı birebir eşleşti.
+- Küçük bir tanım farkı (utilization paydası: current_time vs horizon_hours) bulunup açıklandı — hata değil, iki farklı kendi içinde tutarlı tanım.
+
 ## 2026-08-19 — Phase 13: Digital Twin state katmanı
 
 - `digital_twin/machine.py` (MachineState, mevcut MachineStatus enum'u yeniden kullanıldı), `digital_twin/job.py` (JobState/JobStatus), `digital_twin/state.py` (FactoryState — snapshot/utilization/completed/delayed sorguları), `digital_twin/factory.py` (DigitalTwin — başlangıç durumu kurar, reset()).

@@ -95,12 +95,18 @@ Bir de şunu gördük: bu sefer "akıllı" yöntemler (Random Forest, Gradient B
 
 Bu fazda henüz "zamanı ileri sarmadık" — yani "3 saat sonra ne olur" diye sormadık, sadece "t=0 anında fabrika nasıl görünür" diye kurduk. Zamanı ilerletme, bir sonraki fazın işi.
 
+## Faz 14 — Planı "Filme Çektik" (Simülasyon)
+
+Faz 13'teki "anlık durum tablosu"nu gerçekten çalışır hale getirdik. Şimdi bir plan verdiğimizde (ör. Faz 3'ün basit planı), sistem "08:00'de Makine 1, İş 12'yi başlattı, 09:00'da bitirdi, hemen ardından İş 18'i başlattı..." diye zaman içinde adım adım ilerleyip, her an fabrikanın durumunu güncelliyor.
+
+En sağlam doğrulamayı burada yaptık: aynı planı hem Faz 3'ün basit hesap yöntemiyle hem de bu yeni simülasyonla ayrı ayrı ölçtük — toplam enerji, enerji maliyeti, geciken iş sayısı **birebir aynı** çıktı. İki bağımsız yöntemin aynı sonucu vermesi, ikisinin de doğru çalıştığının güçlü bir kanıtı.
+
 ---
 
 ## Şu An Neredeyiz?
 
-24 aşamadan **14'ünü bitirdik** (Faz 0'dan Faz 13'e kadar). Bir fabrikanın verisini ürettik, en basit planı kurduk, matematik bulmacasını kurup çözdürdük, "akıllı planın gerçekten işe yaradığını" kanıtladık, bilgisayara geçmişten öğrenip tahmin yapmayı öğrettik (hem süre hem enerji için), tahminleri optimizasyona bağladık, ve fabrikanın anlık durumunu tutan bir sistem kurduk.
+24 aşamadan **15'ini bitirdik** (Faz 0'dan Faz 14'e kadar). Bir fabrikanın verisini ürettik, en basit planı kurduk, matematik bulmacasını kurup çözdürdük, "akıllı planın gerçekten işe yaradığını" kanıtladık, bilgisayara geçmişten öğrenip tahmin yapmayı öğrettik, tahminleri optimizasyona bağladık, fabrikanın anlık durumunu tutan bir sistem kurduk, ve bu sistemi planı zaman içinde oynatan bir simülasyona dönüştürdük.
 
 ## Sırada Ne Var?
 
-**Faz 14 — Simülasyon**: Optimizasyonun bulduğu planı, Faz 13'te kurduğumuz "anlık durum tablosu" üzerinde **zaman içinde oynatacağız** — "08:00'de Makine 1, İş 12'yi başlattı, 08:35'te bitirdi, Makine 2 boşaldı..." gibi adım adım ilerleyen bir gösterim. Bu, planın fabrika hayatına nasıl dönüştüğünü görmemizi sağlayacak.
+**Faz 15 — What-If Senaryolar**: Kullanıcının "Makine 3 bozulursa ne olur?", "Enerji fiyatı %20 artarsa ne olur?" gibi sorular sorabileceği bir sistem kuracağız — senaryoyu uygulayıp optimizasyonu yeniden çalıştıracağız, sonucu orijinal planla karşılaştıracağız.
