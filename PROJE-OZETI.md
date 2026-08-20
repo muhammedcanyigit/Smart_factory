@@ -115,12 +115,18 @@ Bu ikisi yan yana çok değerli bir iş sonucu veriyor: **yedeği olmayan kritik
 
 Test ederken her şeyin birbirini doğruladığını gördük: dijital ikizin "kaç iş gecikti" dediği sayı ile optimizasyonun kendi hesapladığı sayı birebir aynı çıktı — sistemin doğru bağlandığının kanıtı.
 
+## Faz 17 — İlk Kez Bir Ekranımız Oldu (Dashboard)
+
+Şimdiye kadar her şeyi kod/terminal üzerinden çalıştırıyorduk. Bu fazda ilk kez gerçek bir **web sayfası** kurduk: fabrikayı gösteren bir ekran, "OPTIMIZE ET" butonu, Before/After karşılaştırma tablosu ve grafiği, ve senaryo deneyebileceğin bir bölüm. Arka planda çalışan bir sunucu (backend) var, o da bizim önceki fazlarda kurduğumuz her şeyi (Faz 16'daki bağlantıyı) kullanıyor.
+
+Burada da gerçekten test ettim — sadece "kod yazdım, çalışır" demedim. Bir tarayıcıyı görünmez modda açtırıp gerçekten butona bastırdım, sonucu ekran görüntüsüyle kontrol ettim. Küçük bir hata buldum (sunucu bazı teknik bir veri tipini web sayfasına gönderirken takılıyordu), düzelttim, tekrar test ettim — şimdi baştan sona sorunsuz çalışıyor.
+
 ---
 
 ## Şu An Neredeyiz?
 
-24 aşamadan **17'sini bitirdik** (Faz 0'dan Faz 16'ya kadar). Bir fabrikanın verisini ürettik, en basit planı kurduk, matematik bulmacasını kurup çözdürdük, "akıllı planın gerçekten işe yaradığını" kanıtladık, bilgisayara tahmin yapmayı öğrettik, tahminleri optimizasyona bağladık, fabrikanın anlık durumunu tutan ve zaman içinde oynatan bir sistem kurduk, "ya böyle olursa" senaryolarını test ettik, ve tüm bunları tek bir uçtan uca sisteme bağladık.
+24 aşamadan **18'ini bitirdik** (Faz 0'dan Faz 17'ye kadar). Fabrikanın verisini ürettik, planları kurup optimize ettik, bilgisayara tahmin yapmayı öğrettik, dijital ikiz ve simülasyon kurduk, senaryoları test ettik, hepsini birbirine bağladık, ve şimdi bunların hepsini görebileceğin, tıklayabileceğin bir ekranımız var.
 
 ## Sırada Ne Var?
 
-**Faz 17 — Dashboard**: Kullanıcının bunların hepsini bir ekrandan görüp "OPTIMIZE ET" butonuna basabileceği bir arayüz kuracağız.
+**Faz 18 — Before/After Görselleştirme**: Dashboard'daki karşılaştırmayı daha da netleştirip güçlendireceğiz — grafiklerin ve sayıların en anlaşılır şekilde sunulmasına odaklanacağız.

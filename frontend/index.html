@@ -1,0 +1,315 @@
+<!doctype html>
+<html lang="tr">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Smart Factory Dashboard</title>
+<script src="https://cdn.plot.ly/plotly-2.35.2.min.js"></script>
+<style>
+  :root {
+    --surface-1: #fcfcfb;
+    --page: #f9f9f7;
+    --text-primary: #0b0b0b;
+    --text-secondary: #52514e;
+    --muted: #898781;
+    --gridline: #e1e0d9;
+    --border: rgba(11,11,11,0.10);
+    --series-1: #2a78d6; /* baseline */
+    --series-2: #eb6834; /* optimized */
+    --good: #0ca30c;
+    --warning: #fab219;
+    --serious: #ec835a;
+    --critical: #d03b3b;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    background: var(--page);
+    color: var(--text-primary);
+    font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
+    padding: 24px;
+  }
+  h1 { font-size: 20px; margin: 0 0 4px; }
+  .subtitle { color: var(--text-secondary); font-size: 13px; margin-bottom: 20px; }
+  .subtitle b { color: var(--critical); }
+  .panel {
+    background: var(--surface-1);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 18px 20px;
+    margin-bottom: 18px;
+  }
+  .panel h2 { font-size: 14px; margin: 0 0 14px; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 0.04em; }
+  .row { display: flex; gap: 12px; flex-wrap: wrap; align-items: flex-end; }
+  .stat-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); gap: 12px; }
+  .stat-tile { background: var(--page); border: 1px solid var(--gridline); border-radius: 8px; padding: 10px 14px; }
+  .stat-tile .value { font-size: 22px; font-weight: 600; font-variant-numeric: tabular-nums; }
+  .stat-tile .label { font-size: 11px; color: var(--muted); margin-top: 2px; }
+  label { font-size: 12px; color: var(--text-secondary); display: block; margin-bottom: 4px; }
+  select, input, button {
+    font-family: inherit; font-size: 13px; padding: 7px 10px;
+    border: 1px solid var(--gridline); border-radius: 6px; background: white;
+  }
+  button {
+    background: var(--series-1); color: white; border: none; cursor: pointer; font-weight: 600;
+  }
+  button:hover { filter: brightness(1.08); }
+  button:disabled { background: var(--muted); cursor: not-allowed; }
+  button.secondary { background: var(--series-2); }
+  table { border-collapse: collapse; width: 100%; font-size: 13px; }
+  th, td { text-align: right; padding: 6px 10px; border-bottom: 1px solid var(--gridline); font-variant-numeric: tabular-nums; }
+  th:first-child, td:first-child { text-align: left; font-variant-numeric: normal; color: var(--text-secondary); }
+  th { color: var(--muted); font-weight: 600; font-size: 11px; text-transform: uppercase; }
+  .badge { display: inline-block; padding: 2px 8px; border-radius: 999px; font-size: 11px; font-weight: 600; color: white; }
+  .badge.good { background: var(--good); }
+  .badge.warning { background: var(--warning); color: #4a3400; }
+  .badge.critical { background: var(--critical); }
+  #chart { height: 280px; }
+  .status-line { font-size: 12px; color: var(--muted); margin-top: 8px; }
+  .loading { color: var(--series-1); font-weight: 600; }
+  .error { color: var(--critical); font-weight: 600; }
+</style>
+</head>
+<body>
+
+<h1>Smart Factory — Digital Twin &amp; Optimization</h1>
+<div class="subtitle">Karar destek sistemi prototipi · <b>Sentetik veri</b> üzerinde çalışır, gerçek bir fabrikaya bağlı değildir</div>
+
+<div class="panel">
+  <h2>Factory Overview</h2>
+  <div class="row" style="margin-bottom:16px;">
+    <div>
+      <label for="size">Dataset Boyutu</label>
+      <select id="size">
+        <option value="small">SMALL (10 makine / 50 iş)</option>
+        <option value="medium">MEDIUM (20 makine / 250 iş)</option>
+        <option value="large">LARGE (50 makine / 1000 iş)</option>
+      </select>
+    </div>
+    <div>
+      <label for="timeLimit">Solver Süresi (sn)</label>
+      <input id="timeLimit" type="number" value="60" min="5" max="300" style="width:80px" />
+    </div>
+    <div><button id="loadOverviewBtn">Fabrikayı Yükle</button></div>
+    <div><button id="optimizeBtn" class="secondary">OPTIMIZE ET</button></div>
+  </div>
+  <div id="overviewStats" class="stat-grid"></div>
+  <div id="overviewStatus" class="status-line"></div>
+</div>
+
+<div class="panel" id="comparisonPanel" style="display:none;">
+  <h2>Before / After — Baseline vs Optimized</h2>
+  <div class="row" style="align-items:flex-start; gap:24px;">
+    <table id="comparisonTable" style="max-width:420px;"></table>
+    <div id="chart" style="flex:1; min-width:280px;"></div>
+  </div>
+  <div id="optimizeStatus" class="status-line"></div>
+</div>
+
+<div class="panel" id="twinPanel" style="display:none;">
+  <h2>Digital Twin — Simülasyon Sonrası Durum</h2>
+  <div id="twinStats" class="stat-grid"></div>
+</div>
+
+<div class="panel">
+  <h2>What-If Senaryolar</h2>
+  <div class="row">
+    <div>
+      <label for="scenario">Senaryo</label>
+      <select id="scenario">
+        <option value="machine_failure">Machine Failure — bir makine arızalanır</option>
+        <option value="energy_price_change">Energy Price Change — enerji fiyatı değişir</option>
+        <option value="deadline_shift">Deadline Shift — teslim tarihleri kayar</option>
+        <option value="maintenance_duration_change">Maintenance Duration — bakım süresi değişir</option>
+      </select>
+    </div>
+    <div id="scenarioParamContainer"></div>
+    <div><button id="runScenarioBtn" class="secondary">SENARYOYU ÇALIŞTIR</button></div>
+  </div>
+  <div id="scenarioStatus" class="status-line"></div>
+  <table id="scenarioTable" style="margin-top:14px;"></table>
+</div>
+
+<script>
+const API = "/api";
+let lastOptimized = null; // en son senaryosuz OPTIMIZE ET sonucu (what-if kıyası için "önce")
+
+function fmt(n) {
+  if (n === null || n === undefined) return "—";
+  return typeof n === "number" ? n.toLocaleString("tr-TR", { maximumFractionDigits: 2 }) : n;
+}
+
+function statTile(value, label) {
+  return `<div class="stat-tile"><div class="value">${fmt(value)}</div><div class="label">${label}</div></div>`;
+}
+
+async function loadOverview() {
+  const size = document.getElementById("size").value;
+  document.getElementById("overviewStatus").innerHTML = '<span class="loading">Yükleniyor…</span>';
+  const res = await fetch(`${API}/overview?size=${size}`);
+  const data = await res.json();
+  const s = data.snapshot;
+  document.getElementById("overviewStats").innerHTML = [
+    statTile(s.total_machines, "Toplam Makine"),
+    statTile(s.idle_machines, "Boşta"),
+    statTile(s.running_machines, "Çalışıyor"),
+    statTile(s.maintenance_machines, "Bakımda"),
+    statTile(s.total_jobs, "Toplam İş"),
+    statTile(s.queued_jobs, "Kuyrukta"),
+  ].join("");
+  document.getElementById("overviewStatus").innerHTML = `t=0 anındaki başlangıç durumu (${size.toUpperCase()})`;
+}
+
+function renderComparisonTable(before, after, beforeLabel, afterLabel) {
+  const rows = [
+    ["Production Time (h)", "production_time_hours"],
+    ["Energy Cost ($)", "energy_cost"],
+    ["Late Jobs", "late_jobs"],
+    ["Avg Tardiness (h)", "avg_tardiness_hours"],
+    ["Total Cost ($)", "total_cost"],
+  ];
+  let html = `<tr><th>Metric</th><th>${beforeLabel}</th><th>${afterLabel}</th></tr>`;
+  for (const [label, key] of rows) {
+    html += `<tr><td>${label}</td><td>${fmt(before[key])}</td><td>${fmt(after[key])}</td></tr>`;
+  }
+  return html;
+}
+
+function renderBarChart(before, after, beforeLabel, afterLabel) {
+  const metrics = ["Production Time (h)", "Energy Cost ($)", "Total Cost ($)"];
+  const keys = ["production_time_hours", "energy_cost", "total_cost"];
+  Plotly.newPlot("chart", [
+    { x: metrics, y: keys.map(k => before[k]), name: beforeLabel, type: "bar", marker: { color: "#2a78d6" } },
+    { x: metrics, y: keys.map(k => after[k]), name: afterLabel, type: "bar", marker: { color: "#eb6834" } },
+  ], {
+    barmode: "group",
+    margin: { t: 10, r: 10, b: 40, l: 50 },
+    font: { family: "system-ui, sans-serif", size: 11, color: "#52514e" },
+    plot_bgcolor: "#fcfcfb", paper_bgcolor: "#fcfcfb",
+    legend: { orientation: "h", y: 1.15 },
+  }, { displayModeBar: false, responsive: true });
+}
+
+async function runOptimize() {
+  const size = document.getElementById("size").value;
+  const timeLimit = parseInt(document.getElementById("timeLimit").value, 10);
+  const btn = document.getElementById("optimizeBtn");
+  btn.disabled = true;
+
+  document.getElementById("comparisonPanel").style.display = "block";
+  document.getElementById("optimizeStatus").innerHTML = '<span class="loading">Baseline hesaplanıyor, optimizasyon çalışıyor… (solver süresine göre biraz sürebilir)</span>';
+
+  try {
+    const [baselineRes, optimizeRes] = await Promise.all([
+      fetch(`${API}/baseline?size=${size}`),
+      fetch(`${API}/optimize`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ size, time_limit_seconds: timeLimit }),
+      }),
+    ]);
+    const baseline = await baselineRes.json();
+    const result = await optimizeRes.json();
+
+    if (!result.feasible) {
+      document.getElementById("optimizeStatus").innerHTML = `<span class="error">Optimizasyon ÇÖZÜMSÜZ: ${result.metrics.solver_status}</span>`;
+      btn.disabled = false;
+      return;
+    }
+
+    lastOptimized = { baseline, result };
+
+    document.getElementById("comparisonTable").innerHTML = renderComparisonTable(baseline, result.metrics, "FCFS", "Optimized");
+    renderBarChart(baseline, result.metrics, "FCFS", "Optimized");
+
+    const improvement = 100 * (baseline.total_cost - result.metrics.total_cost) / baseline.total_cost;
+    document.getElementById("optimizeStatus").innerHTML =
+      `Toplam maliyet iyileşmesi: <b>%${improvement.toFixed(2)}</b> — solver: ${result.metrics.solver_status} (gap %${result.metrics.solver_gap_pct})`;
+
+    const t = result.twin_snapshot;
+    document.getElementById("twinPanel").style.display = "block";
+    document.getElementById("twinStats").innerHTML = [
+      statTile(t.completed_jobs, "Tamamlanan İş"),
+      statTile(t.delayed_jobs, "Geciken İş"),
+      statTile(t.total_energy_kwh, "Toplam Enerji (kWh)"),
+      statTile(t.total_energy_cost, "Enerji Maliyeti ($)"),
+      statTile(t.avg_machine_utilization, "Ort. Kullanım Oranı"),
+      statTile(t.current_time_hours, "Simülasyon Bitiş (h)"),
+    ].join("");
+  } catch (err) {
+    document.getElementById("optimizeStatus").innerHTML = `<span class="error">Hata: ${err}</span>`;
+  } finally {
+    btn.disabled = false;
+  }
+}
+
+function updateScenarioParams() {
+  const scenario = document.getElementById("scenario").value;
+  const container = document.getElementById("scenarioParamContainer");
+  if (scenario === "machine_failure") {
+    container.innerHTML = `<div><label for="p1">Makine ID</label><input id="p1" type="text" value="M001" style="width:80px" /></div>`;
+  } else if (scenario === "deadline_shift") {
+    container.innerHTML = `<div><label for="p1">Kaydırma (saat)</label><input id="p1" type="number" value="-12" style="width:80px" /></div>`;
+  } else {
+    container.innerHTML = `<div><label for="p1">Yüzde Değişim (ör. 0.2 = %20)</label><input id="p1" type="number" step="0.1" value="0.2" style="width:80px" /></div>`;
+  }
+}
+
+async function runScenario() {
+  if (!lastOptimized) {
+    document.getElementById("scenarioStatus").innerHTML = '<span class="error">Önce "OPTIMIZE ET" ile bir referans plan oluştur.</span>';
+    return;
+  }
+  const size = document.getElementById("size").value;
+  const timeLimit = parseInt(document.getElementById("timeLimit").value, 10);
+  const scenario = document.getElementById("scenario").value;
+  const p1 = document.getElementById("p1").value;
+
+  let scenario_kwargs = {};
+  if (scenario === "machine_failure") scenario_kwargs = { machine_id: p1 };
+  else if (scenario === "deadline_shift") scenario_kwargs = { hours: parseFloat(p1) };
+  else scenario_kwargs = { pct_change: parseFloat(p1) };
+
+  const btn = document.getElementById("runScenarioBtn");
+  btn.disabled = true;
+  document.getElementById("scenarioStatus").innerHTML = '<span class="loading">Senaryo uygulanıp yeniden optimize ediliyor…</span>';
+
+  try {
+    const res = await fetch(`${API}/optimize`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ size, time_limit_seconds: timeLimit, scenario_name: scenario, scenario_kwargs }),
+    });
+    const result = await res.json();
+
+    if (!result.feasible) {
+      document.getElementById("scenarioTable").innerHTML = "";
+      document.getElementById("scenarioStatus").innerHTML =
+        `<span class="error">Senaryo altında optimizasyon ÇÖZÜMSÜZ (infeasible): ${result.metrics.solver_status}. Bu genellikle bir kısıtın (ör. tek örneği kalan bir makine tipi) tamamen ortadan kalkmasıyla olur.</span>`;
+      return;
+    }
+
+    document.getElementById("scenarioTable").innerHTML = renderComparisonTable(
+      lastOptimized.result.metrics, result.metrics, "Orijinal Optimized", "Senaryo Optimized"
+    );
+    const delta = 100 * (result.metrics.total_cost - lastOptimized.result.metrics.total_cost) / lastOptimized.result.metrics.total_cost;
+    document.getElementById("scenarioStatus").innerHTML =
+      `Orijinal plana göre maliyet değişimi: <b>${delta >= 0 ? "+" : ""}%${delta.toFixed(2)}</b>`;
+  } catch (err) {
+    document.getElementById("scenarioStatus").innerHTML = `<span class="error">Hata: ${err}</span>`;
+  } finally {
+    btn.disabled = false;
+  }
+}
+
+document.getElementById("loadOverviewBtn").addEventListener("click", loadOverview);
+document.getElementById("optimizeBtn").addEventListener("click", runOptimize);
+document.getElementById("scenario").addEventListener("change", updateScenarioParams);
+document.getElementById("runScenarioBtn").addEventListener("click", runScenario);
+
+updateScenarioParams();
+loadOverview();
+</script>
+
+</body>
+</html>

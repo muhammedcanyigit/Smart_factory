@@ -10,11 +10,20 @@ Bu proje bir karar destek sistemidir (decision support system) — gerçek bir f
 
 ## Durum
 
-Şu an: **Phase 0-9 tamamlandı** (24 fazdan 10'u). Proje tanımı → veri modeli → sentetik veri üretici → baseline (FCFS/EDF) → matematiksel model (MILP) → Pyomo implementasyonu → solver optimizasyonu → baseline vs optimized karşılaştırması.
+Şu an: **Phase 0-17 tamamlandı** (24 fazdan 18'i). Proje tanımı → veri modeli → sentetik veri üretici → baseline → MILP → solver → baseline-vs-optimized → ML (süre+enerji tahmini) → Predict→Optimize → Digital Twin → Simülasyon → What-If senaryolar → uçtan uca pipeline → Dashboard.
 
 - **Projeyi hiç bilmeyen biri için, çok basit anlatım**: [PROJE-OZETI.md](PROJE-OZETI.md) — buradan başla.
 - İlerleme ve gerekçeler için bkz. [CHANGELOG.md](CHANGELOG.md).
 - "Neden bu kararı verdik" için bkz. [docs/decision-log.md](docs/decision-log.md).
+
+## Dashboard'ı Çalıştırma
+
+```bash
+pip install -r requirements.txt
+uvicorn backend.main:app --reload
+```
+
+Tarayıcıda [http://127.0.0.1:8000/](http://127.0.0.1:8000/) — "Fabrikayı Yükle", "OPTIMIZE ET" ve What-If senaryolarını buradan deneyebilirsin.
 
 ## Veri Hakkında Not
 

@@ -2,6 +2,15 @@
 
 Bu dosya, projede yapılan önemli değişikliklerin kaydını tutar. En yeni değişiklik en üstte. Format ve güncelleme kuralı için bkz. [CLAUDE.md](CLAUDE.md).
 
+## 2026-08-20 — Phase 17: Dashboard (FastAPI + hafif frontend)
+
+- `backend/api/routes.py` (GET /overview, /baseline, /scenarios; POST /optimize), `backend/main.py` (FastAPI app + statik frontend sunumu), `frontend/index.html` (tek sayfa dashboard, Plotly.js CDN).
+- `fastapi`/`uvicorn` kuruldu (requirements.txt'te vardı, ortamda eksikti).
+- **Bulunan hata**: `/optimize` HTTP 500 veriyordu — `solve_info`'daki ham `HighsModelStatus` enum'u JSON'a çevrilemiyordu. `routes.py`'de düzeltildi.
+- **Tarayıcı testi**: Python `playwright` ile headless Chromium üzerinden Ana sayfa → OPTIMIZE ET → What-If senaryo akışı uçtan uca test edildi, ekran görüntüleriyle doğrulandı, konsol hatası yok. Digital Twin paneli ile Before/After paneli birbirini doğruladı.
+- 4 panel de (Factory Overview, Optimization Results, Before/After, Scenario Results) çalışıyor. Başlatma: `uvicorn backend.main:app --reload`.
+- `docs/decision-log.md` güncellendi.
+
 ## 2026-08-20 — Phase 16: Uçtan uca pipeline entegrasyonu
 
 - `backend/services/pipeline.py::run_pipeline()` eklendi: Factory Data → (opsiyonel senaryo) → Digital Twin → ML→Optimize (Phase 11) → Simulation (Phase 14) → sonuç. Yeni algoritma yok, önceki fazların modülleri birleştirildi.
