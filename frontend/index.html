@@ -127,7 +127,10 @@
     <div><button id="runScenarioBtn" class="secondary">SENARYOYU ÇALIŞTIR</button></div>
   </div>
   <div id="scenarioStatus" class="status-line"></div>
-  <table id="scenarioTable" style="margin-top:14px;"></table>
+  <div class="row" style="align-items:flex-start; gap:24px; margin-top:14px;">
+    <table id="scenarioTable" style="max-width:480px;"></table>
+    <div id="scenarioChart" style="flex:1; min-width:280px;"></div>
+  </div>
 </div>
 
 <script>
@@ -186,10 +189,10 @@ function renderComparisonTable(before, after, beforeLabel, afterLabel) {
   return html;
 }
 
-function renderBarChart(before, after, beforeLabel, afterLabel) {
+function renderBarChart(before, after, beforeLabel, afterLabel, targetId = "chart") {
   const metrics = ["Production Time (h)", "Energy Cost ($)", "Total Cost ($)"];
   const keys = ["production_time_hours", "energy_cost", "total_cost"];
-  Plotly.newPlot("chart", [
+  Plotly.newPlot(targetId, [
     { x: metrics, y: keys.map(k => before[k]), name: beforeLabel, type: "bar", marker: { color: "#2a78d6" } },
     { x: metrics, y: keys.map(k => after[k]), name: afterLabel, type: "bar", marker: { color: "#eb6834" } },
   ], {
@@ -295,6 +298,7 @@ async function runScenario() {
 
     if (!result.feasible) {
       document.getElementById("scenarioTable").innerHTML = "";
+      Plotly.purge("scenarioChart");
       document.getElementById("scenarioStatus").innerHTML =
         `<span class="error">Senaryo altında optimizasyon ÇÖZÜMSÜZ (infeasible): ${result.metrics.solver_status}. Bu genellikle bir kısıtın (ör. tek örneği kalan bir makine tipi) tamamen ortadan kalkmasıyla olur.</span>`;
       return;
@@ -303,6 +307,7 @@ async function runScenario() {
     document.getElementById("scenarioTable").innerHTML = renderComparisonTable(
       lastOptimized.result.metrics, result.metrics, "Orijinal Optimized", "Senaryo Optimized"
     );
+    renderBarChart(lastOptimized.result.metrics, result.metrics, "Orijinal Optimized", "Senaryo Optimized", "scenarioChart");
     const delta = 100 * (result.metrics.total_cost - lastOptimized.result.metrics.total_cost) / lastOptimized.result.metrics.total_cost;
     document.getElementById("scenarioStatus").innerHTML =
       `Orijinal plana göre maliyet değişimi: <b>${delta >= 0 ? "+" : ""}%${delta.toFixed(2)}</b>`;
