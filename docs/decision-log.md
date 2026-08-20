@@ -204,3 +204,10 @@ Her fazın sonunda kısa bir madde eklenir: **Öncüller** (o faza girerken vars
 - **API testi (curl)**: 4 uç nokta da doğru çalıştı. İlk `/optimize` denemesinde **HTTP 500** hatası bulundu — kök neden: `solve_info` içindeki ham `HighsModelStatus` enum nesnesi JSON'a çevrilemiyordu (zaten `model_status_str` aynı bilgiyi okunabilir veriyordu). `routes.py`'de bu alan response'tan çıkarılarak düzeltildi.
 - **Tarayıcı testi (Playwright, headless Chromium)**: `chromium-cli` bu ortamda yoktu, Python `playwright` paketi (zaten kurulu) ile bir driver script yazıldı. Ana sayfa, "OPTIMIZE ET" sonrası Before/After paneli, Digital Twin paneli ve What-If senaryo sonucu ekran görüntüleriyle doğrulandı — konsol hatası yok, tüm paneller gerçek API verisiyle doğru doluyor. Digital Twin panelindeki `delayed_jobs`/`total_energy_cost` ile Before/After panelindeki `late_jobs`/`energy_cost` birebir eşleşti (aynı çapraz doğrulama disiplini burada da uygulandı).
 - **Sonuç**: Başarı kriterlerindeki 4 panel de (Factory Overview, Optimization Results, Before/After, Scenario Results) çalışır durumda. Başlatma: `uvicorn backend.main:app --reload`, tarayıcıda `http://127.0.0.1:8000/`.
+
+## Phase 18 — Before/After Görselleştirme (Güçlendirme)
+
+- **Öncül**: Phase 17'de zaten temel bir before/after tablosu+grafiği vardı; bu faz onu güçlendirecekti (roadmap'te ayrı fazlar).
+- **Ekleme 1 — Değişim rozetleri**: `deltaBadge()` — her metrik için yeşil (iyileşme)/kırmızı (kötüleşme)/gri (%0 değişim) rozet. Bu 5 metriğin (süre, enerji, gecikme, maliyet) hepsinde "düşük = iyi" olduğu için tek yönlü bir kural yeterliydi, ayrı bir yön haritası gerekmedi.
+- **Ekleme 2 — What-If senaryo grafiği**: Daha önce sadece tablo vardı; `renderBarChart` bir `targetId` parametresi alacak şekilde genelleştirilip (kod tekrarı yok) senaryo paneline de eklendi.
+- **Doğrulama**: Tarayıcıda iki ayrı senaryo test edildi. `deadline_shift(-12h)` ile Total Cost'ta **+%191.2** artış hem tabloda kırmızı rozetle hem grafikte net şekilde görüldü — Phase 15'teki bulguyla (farklı zaman limitiyle +%226) aynı yönde, tutarlı. Konsol hatası yok.

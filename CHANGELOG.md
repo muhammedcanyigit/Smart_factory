@@ -2,6 +2,12 @@
 
 Bu dosya, projede yapılan önemli değişikliklerin kaydını tutar. En yeni değişiklik en üstte. Format ve güncelleme kuralı için bkz. [CLAUDE.md](CLAUDE.md).
 
+## 2026-08-20 — Phase 18: Before/After görselleştirme güçlendirildi
+
+- `frontend/index.html`: Before/After tablosuna renkli değişim rozeti (yeşil/kırmızı/gri %) eklendi; What-If senaryo karşılaştırmasına da bar chart eklendi (`renderBarChart` yeniden kullanılabilir hale getirildi).
+- Tarayıcıda test edildi: `deadline_shift(-12h)` senaryosunda +%191.2 maliyet artışı hem rozette hem grafikte doğru görüldü, Phase 15 bulgusuyla tutarlı. Konsol hatası yok.
+- `docs/decision-log.md` güncellendi.
+
 ## 2026-08-20 — Phase 17: Dashboard (FastAPI + hafif frontend)
 
 - `backend/api/routes.py` (GET /overview, /baseline, /scenarios; POST /optimize), `backend/main.py` (FastAPI app + statik frontend sunumu), `frontend/index.html` (tek sayfa dashboard, Plotly.js CDN).

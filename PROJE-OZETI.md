@@ -121,12 +121,16 @@ Test ederken her şeyin birbirini doğruladığını gördük: dijital ikizin "k
 
 Burada da gerçekten test ettim — sadece "kod yazdım, çalışır" demedim. Bir tarayıcıyı görünmez modda açtırıp gerçekten butona bastırdım, sonucu ekran görüntüsüyle kontrol ettim. Küçük bir hata buldum (sunucu bazı teknik bir veri tipini web sayfasına gönderirken takılıyordu), düzelttim, tekrar test ettim — şimdi baştan sona sorunsuz çalışıyor.
 
+## Faz 18 — Karşılaştırmayı Daha Net Hale Getirdik
+
+Faz 17'deki Before/After tablosunu güçlendirdik: artık her satırda "bu metrik iyileşti mi kötüleşti mi" **renkli bir rozet** (yeşil = iyi, kırmızı = kötü) olarak gösteriliyor — sayılara tek tek bakmak yerine bir bakışta anlaşılıyor. Ayrıca senaryo karşılaştırmasına da (önceden sadece tablo vardı) bir grafik ekledik.
+
 ---
 
 ## Şu An Neredeyiz?
 
-24 aşamadan **18'ini bitirdik** (Faz 0'dan Faz 17'ye kadar). Fabrikanın verisini ürettik, planları kurup optimize ettik, bilgisayara tahmin yapmayı öğrettik, dijital ikiz ve simülasyon kurduk, senaryoları test ettik, hepsini birbirine bağladık, ve şimdi bunların hepsini görebileceğin, tıklayabileceğin bir ekranımız var.
+24 aşamadan **19'unu bitirdik** (Faz 0'dan Faz 18'e kadar). Fabrikanın verisini ürettik, planları kurup optimize ettik, bilgisayara tahmin yapmayı öğrettik, dijital ikiz ve simülasyon kurduk, senaryoları test ettik, hepsini birbirine bağladık, ve görsel, anlaşılır bir dashboard'umuz var.
 
 ## Sırada Ne Var?
 
-**Faz 18 — Before/After Görselleştirme**: Dashboard'daki karşılaştırmayı daha da netleştirip güçlendireceğiz — grafiklerin ve sayıların en anlaşılır şekilde sunulmasına odaklanacağız.
+**Faz 19 — Deneysel Değerlendirme**: Şu ana kadar SMALL üzerinde çok test yaptık. Şimdi sistematik olarak SMALL/MEDIUM/LARGE'ın hepsinde deneyler yapıp, sonuçları düzenli bir şekilde raporlayacağız — bitirme projesi raporunun "Results" bölümünün temeli.
