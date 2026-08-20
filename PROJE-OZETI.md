@@ -109,12 +109,18 @@ Burada gerçek ve öğretici bir problemle karşılaştım: SMALL fabrikamızda 
 
 Bu ikisi yan yana çok değerli bir iş sonucu veriyor: **yedeği olmayan kritik bir makinenin arızası fabrikayı tamamen durdurabilir, yedeği olan bir makinenin arızası sadece maliyeti artırır.** Deadline'ları sıkılaştırma senaryosu da çarpıcıydı: 12 saat erkene çekince geciken iş sayısı 4'ten 41'e (50 işten!) fırladı.
 
+## Faz 16 — Tüm Parçaları Birbirine Bağladık
+
+Şimdiye kadar kurduğumuz her şeyi (veri üretimi, dijital ikiz, tahmin, optimizasyon, simülasyon, senaryolar) **tek bir düğmeye** bağladık. Artık tek bir komutla: sahte fabrika verisi üretiliyor, (istersen bir senaryo uygulanıyor), yapay zeka süreleri tahmin ediyor, optimizasyon en iyi planı buluyor, plan gerçek sürelerle yeniden değerlendiriliyor, ve dijital ikiz bu planı zaman içinde oynatıp son durumu gösteriyor — hepsi tek seferde.
+
+Test ederken her şeyin birbirini doğruladığını gördük: dijital ikizin "kaç iş gecikti" dediği sayı ile optimizasyonun kendi hesapladığı sayı birebir aynı çıktı — sistemin doğru bağlandığının kanıtı.
+
 ---
 
 ## Şu An Neredeyiz?
 
-24 aşamadan **16'sını bitirdik** (Faz 0'dan Faz 15'e kadar). Bir fabrikanın verisini ürettik, en basit planı kurduk, matematik bulmacasını kurup çözdürdük, "akıllı planın gerçekten işe yaradığını" kanıtladık, bilgisayara geçmişten öğrenip tahmin yapmayı öğrettik, tahminleri optimizasyona bağladık, fabrikanın anlık durumunu tutan bir sistem kurduk, bu sistemi planı zaman içinde oynatan bir simülasyona dönüştürdük, ve "ya böyle olursa" senaryolarını test edebilen bir sistem kurduk.
+24 aşamadan **17'sini bitirdik** (Faz 0'dan Faz 16'ya kadar). Bir fabrikanın verisini ürettik, en basit planı kurduk, matematik bulmacasını kurup çözdürdük, "akıllı planın gerçekten işe yaradığını" kanıtladık, bilgisayara tahmin yapmayı öğrettik, tahminleri optimizasyona bağladık, fabrikanın anlık durumunu tutan ve zaman içinde oynatan bir sistem kurduk, "ya böyle olursa" senaryolarını test ettik, ve tüm bunları tek bir uçtan uca sisteme bağladık.
 
 ## Sırada Ne Var?
 
-**Faz 16 — Tüm Döngünün Entegrasyonu**: Şimdiye kadar kurduğumuz parçaları (veri → tahmin → optimizasyon → simülasyon → senaryo) tek, uçtan uca çalışan bir akışa bağlayacağız.
+**Faz 17 — Dashboard**: Kullanıcının bunların hepsini bir ekrandan görüp "OPTIMIZE ET" butonuna basabileceği bir arayüz kuracağız.

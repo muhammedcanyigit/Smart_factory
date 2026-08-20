@@ -90,12 +90,21 @@ def replay_with_ground_truth(assigned_machine: dict, order: list, dataset: dict,
     return pd.DataFrame(rows).sort_values(["job_id", "sequence_no"]).reset_index(drop=True)
 
 
-def run_predict_optimize(size: str = "small", time_limit_seconds: int = 120, config_path: str = "config/config.yaml"):
+def run_predict_optimize(
+    size: str = "small",
+    time_limit_seconds: int = 120,
+    config_path: str = "config/config.yaml",
+    dataset: dict | None = None,
+):
+    """`dataset` verilmezse size'a göre yeniden üretilir; verilirse (ör. Phase 16
+    pipeline'ının senaryo dalı) doğrudan kullanılır."""
     config = yaml.safe_load(open(config_path))
     horizon_hours = config["dataset"]["horizon_hours"]
     weights = config["optimization"]["objective_weights"]
 
-    dataset = generate_dataset(size=size, config_path=config_path)
+    if dataset is None:
+        dataset = generate_dataset(size=size, config_path=config_path)
+
     ml_model = load_model(f"ml/models/processing_time_{size}.joblib")
     operations_predicted = predict_processing_times(ml_model, dataset)
 
@@ -107,10 +116,16 @@ def run_predict_optimize(size: str = "small", time_limit_seconds: int = 120, con
     model, data = build_model(dataset_predicted, config, stage="final")
     solve_info = solve_with_warm_start(model, data, fcfs_schedule, time_limit_seconds=time_limit_seconds)
 
+    from optimization.native_solver import has_feasible_solution_native
+
+    if not has_feasible_solution_native(solve_info):
+        return {"feasible": False, "solver_status": solve_info.get("model_status_str")}, None, solve_info
+
     assigned_machine, order = extract_assignment_and_predicted_order(model, data)
     actual_schedule = replay_with_ground_truth(assigned_machine, order, dataset, data)
 
     actual_metrics = summarize(actual_schedule, dataset, horizon_hours)
+    actual_metrics["feasible"] = True
     actual_metrics["total_cost"] = round(compute_total_cost(actual_schedule, dataset, horizon_hours, weights), 2)
     actual_metrics["solver_status"] = solve_info.get("model_status_str")
     actual_metrics["solver_gap_pct"] = round(100 * (solve_info.get("mip_gap") or 0), 2)

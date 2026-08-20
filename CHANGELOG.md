@@ -2,6 +2,13 @@
 
 Bu dosya, projede yapılan önemli değişikliklerin kaydını tutar. En yeni değişiklik en üstte. Format ve güncelleme kuralı için bkz. [CLAUDE.md](CLAUDE.md).
 
+## 2026-08-20 — Phase 16: Uçtan uca pipeline entegrasyonu
+
+- `backend/services/pipeline.py::run_pipeline()` eklendi: Factory Data → (opsiyonel senaryo) → Digital Twin → ML→Optimize (Phase 11) → Simulation (Phase 14) → sonuç. Yeni algoritma yok, önceki fazların modülleri birleştirildi.
+- `ml/predict_optimize.py::run_predict_optimize` ve mevcut `optimization/comparison.py::run_comparison`, opsiyonel `dataset` parametresiyle tutarlı hale getirildi (senaryo dalı ayrı kod yolu değil, aynı fonksiyonlara senaryolu dataset veriliyor); ikisi de artık infeasible durumu `{"feasible": False}` ile zarifçe raporluyor (crash yerine).
+- Doğrulama: senaryosuz ve senaryolu (M001 arızası) koşularda `twin_snapshot` ile `metrics` çapraz kontrol edildi — geciken iş sayısı ve enerji maliyeti birebir eşleşti.
+- `docs/decision-log.md` güncellendi.
+
 ## 2026-08-19 — Phase 15: What-If senaryo motoru + infeasibility hatası düzeltildi
 
 - `simulation/scenarios.py`: 4 senaryo (machine_failure, energy_price_change, deadline_shift, maintenance_duration_change). "Orders +X%" ve "Capacity -X%" kapsam dışı bırakıldı, gerekçesi belgelendi.

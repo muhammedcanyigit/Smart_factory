@@ -187,3 +187,11 @@ Her fazın sonunda kısa bir madde eklenir: **Öncüller** (o faza girerken vars
 | Maintenance duration +50% | $11,659.12 → $14,039.78 (+%20.4) | Late jobs 4→5, tardiness 0.09h→0.39h |
 
 - **Genel değerlendirme**: İki uç örnek (M003 infeasible vs M001 feasible-ama-pahalı) somut bir iş sonucu gösteriyor: "kritik makine tiplerinde tek nokta bağımlılığı olmamalı" — yedeği olmayan bir makinenin arızası sistemi tamamen durdururken, yedeği olan bir makinenin arızası sadece maliyeti artırıyor. Deadline senaryosu ise sistemin deadline baskısına ne kadar duyarlı olduğunu (4→41 geciken iş) çarpıcı şekilde gösteriyor.
+
+## Phase 16 — Tüm Döngünün Entegrasyonu
+
+- **Öncül**: Önceki fazlarda ayrı ayrı kurulan parçaları (Digital Twin, ML tahmini, optimizasyon, simülasyon, senaryo) tek fonksiyonla çalışan bir akışa bağlamak — yeni matematik/algoritma yok, sadece doğru sırayla birleştirme.
+- **Uygulama**: `backend/services/pipeline.py::run_pipeline(size, scenario_name=None, scenario_kwargs=None)`. `ml/predict_optimize.py::run_predict_optimize` ve `optimization/comparison.py::run_comparison`'a önceden eklenen `dataset` parametresi burada da kullanıldı — senaryo dalı ayrı bir kod yolu değil, aynı fonksiyonlara senaryolu dataset'in verilmesiyle çalışıyor (Phase 15'teki "re-optimization" ilkesiyle aynı).
+- **Akış**: Factory Data → (opsiyonel senaryo dönüşümü) → Digital Twin (başlangıç durumu) → ML tahmini + Optimizasyon + gerçek süreyle yeniden değerlendirme (Phase 11) → Simulation (planı Digital Twin üzerinde oynat, Phase 14) → sonuç.
+- **Doğrulama — çapraz kontrol**: Senaryosuz ve senaryolu (M001 arızası) her iki çalıştırmada da `twin_snapshot`'taki `delayed_jobs`/`total_energy_cost` değerleri, `metrics`'teki `late_jobs`/`energy_cost` ile **birebir eşleşti** — pipeline'ın tüm parçaları doğru bağlandığının kanıtı. Senaryolu koşuda `current_time_hours=168.0` çıktı (üretim 144.69h'de bitmiş olsa da) — sebebi mantıklı: M001'in "arıza" bakım olayı tüm ufku (0-168h) kapladığı için simülasyonun son olayı bu bakımın bitişi oluyor, hata değil.
+- **Sonuç**: `backend/services/pipeline.py`, Phase 17'nin (Dashboard/API) doğrudan çağıracağı tek giriş noktası olarak hazır.
