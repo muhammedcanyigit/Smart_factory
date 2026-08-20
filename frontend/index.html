@@ -100,7 +100,7 @@
 <div class="panel" id="comparisonPanel" style="display:none;">
   <h2>Before / After — Baseline vs Optimized</h2>
   <div class="row" style="align-items:flex-start; gap:24px;">
-    <table id="comparisonTable" style="max-width:420px;"></table>
+    <table id="comparisonTable" style="max-width:480px;"></table>
     <div id="chart" style="flex:1; min-width:280px;"></div>
   </div>
   <div id="optimizeStatus" class="status-line"></div>
@@ -160,6 +160,17 @@ async function loadOverview() {
   document.getElementById("overviewStatus").innerHTML = `t=0 anındaki başlangıç durumu (${size.toUpperCase()})`;
 }
 
+function deltaBadge(before, after) {
+  // Bu tablodaki 5 metriğin hepsinde "düşük = iyi" (süre, maliyet, gecikme) —
+  // tek yönlü bir kural yeterli, ayrı bir "lower_is_better" haritası gerekmiyor.
+  if (!before || before === 0) return "";
+  const pct = 100 * (after - before) / Math.abs(before);
+  if (Math.abs(pct) < 0.05) return `<span class="badge" style="background:var(--muted)">%0.0</span>`;
+  const cls = pct < 0 ? "good" : "critical";
+  const sign = pct > 0 ? "+" : "";
+  return `<span class="badge ${cls}">${sign}${pct.toFixed(1)}%</span>`;
+}
+
 function renderComparisonTable(before, after, beforeLabel, afterLabel) {
   const rows = [
     ["Production Time (h)", "production_time_hours"],
@@ -168,9 +179,9 @@ function renderComparisonTable(before, after, beforeLabel, afterLabel) {
     ["Avg Tardiness (h)", "avg_tardiness_hours"],
     ["Total Cost ($)", "total_cost"],
   ];
-  let html = `<tr><th>Metric</th><th>${beforeLabel}</th><th>${afterLabel}</th></tr>`;
+  let html = `<tr><th>Metric</th><th>${beforeLabel}</th><th>${afterLabel}</th><th>Değişim</th></tr>`;
   for (const [label, key] of rows) {
-    html += `<tr><td>${label}</td><td>${fmt(before[key])}</td><td>${fmt(after[key])}</td></tr>`;
+    html += `<tr><td>${label}</td><td>${fmt(before[key])}</td><td>${fmt(after[key])}</td><td>${deltaBadge(before[key], after[key])}</td></tr>`;
   }
   return html;
 }
