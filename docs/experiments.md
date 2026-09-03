@@ -65,11 +65,36 @@ Bu gözlem, ileride Phase 9'da optimizasyon sonucuyla kıyaslarken **her iki bas
 
 **En önemli bulgu**: Yedeksiz kritik makine (M003) arızası sistemi tamamen durdururken (infeasible), yedekli makine (M001) arızası sadece maliyeti artırıyor. Bu, "tek nokta bağımlılığı" riskinin somut, ölçülmüş bir kanıtı — fabrika tasarımı için doğrudan uygulanabilir bir öneri (kritik makine tiplerinde yedeklilik).
 
-## Planlanan İçerik (Phase 19-20)
+## Phase 19 — Deneysel Değerlendirme (SMALL / MEDIUM / LARGE)
 
-- Deney tasarımı: SMALL (10 makine/50 job), MEDIUM (20 makine/250 job), LARGE (50 makine/1000 job)
-- Ölçülecek metrikler: solve time, objective value, energy cost, tardiness, utilization
-- Baseline vs Optimization karşılaştırması
-- ML vs Ground Truth karşılaştırması
-- Normal Scenario vs Failure Scenario karşılaştırması
-- Stress test bulguları (solver'ın zorlandığı nokta — varsa gizlenmeden raporlanır)
+Üç boyutta, aynı "final" (birleşik $) hedefiyle, `optimization/comparison.py` üzerinden sistematik ölçüm yapıldı. Amaç: ölçek büyüdükçe sistemin nerede zorlandığını dürüstçe göstermek.
+
+### Model Boyutu (çözmeden önce, sadece kurulum)
+
+| | Operasyon | Binary Değişken | Kısıt | Model Kurulum Süresi |
+|---|---:|---:|---:|---:|
+| SMALL | 162 | 30.437 | 64.990 | 0.49 sn |
+| MEDIUM | 814 | 214.172 | 856.228 | 8.53 sn |
+| LARGE | 3.245 | 1.741.716 | 25.465.109 | **8569.40 sn (2.4 saat)** |
+
+**Kök neden (doğrulandı)**: Operasyon sayısı SMALL→LARGE arası 20 kat artarken, aynı makine tipini paylaşan operasyon **çiftleri** (C3 kısıtının temeli, `y[o,o']`) 413 kat arttı (2.789 → 1.151.635) — çünkü bu ilişki karesel (O(n²)) büyüyor: her makine tipi için o tipteki operasyon sayısının karesiyle orantılı. Bu, Phase 5'te seçilen "ikili çakışma" (pairwise disjunctive, Big-M) kısıt formülasyonunun literatürde bilinen bir zayıflığı — kod hatası değil, seçilen matematiksel yaklaşımın büyük ölçekteki doğal sınırı. Alternatif formülasyonlar (ör. zaman-indeksli) farklı ölçeklenme karakteristiği gösterir ama daha fazla değişken/karmaşıklık gerektirir — bu bir sonraki faz (Phase 20) veya gelecekteki bir iyileştirme için not.
+
+### Baseline vs Optimized (Stage "final")
+
+| Metric | SMALL (120sn) | MEDIUM (180sn) | LARGE |
+|---|---:|---:|---:|
+| FCFS Total Cost ($) | 13051.72 | 29366.39 | — |
+| Optimized Total Cost ($) | **11659.12** | 29366.39 | — |
+| İyileşme | **%10.67** | **%0.00** | — |
+| Solver Gap | %5.33 | %74.95 | — |
+| Solver Durumu | Time limit | Time limit (warm-start'tan hiç iyileşmedi) | Model kurulumu bile tamamlanamadı (çözme denenmedi) |
+
+**Dürüst yorum — ölçeklenme hikayesi tutarlı**: SMALL'da solver warm-start'ı gerçek anlamda iyileştirebiliyor (%10.67, gap %5.33 — makul). MEDIUM'da model (özellikle enerji `w[o,t]` mekanizması: 814×168≈136.752 ek ikili değişken + C3'ün genişlemiş hali) o kadar büyüdü ki solver 180 saniyede **warm-start'tan bir adım bile ilerleyemedi** (gap %74.95 — LP gevşetmesi çok zayıf). LARGE'da model kurulumu tek başına 2.4 saat sürdüğü için çözme denemesi hiç yapılmadı. Bu, "büyük problemler exact olarak çözülemiyorsa gizlenmez" ilkesine uygun, gerçek ve önemli bir bilimsel bulgu — MILP tabanlı exact çözümün bu formülasyonla nerede pratik sınırına dayandığını net gösteriyor.
+
+**Not**: MEDIUM'un burada "final" hedefte %74.95 gap vermesi, Phase 8'deki MEDIUM "makespan-only" testiyle (gap %0.21) çelişmiyor — o test çok daha küçük bir modeldi (`w[o,t]` yok). Enerji mekanizması eklenince model büyüklüğü/zorluğu kalitatif olarak değişiyor.
+
+## Planlanan İçerik (Phase 20)
+
+- Stress test: bu fazda bulunan O(n²) darboğazın (C3/y_pairs) MEDIUM/LARGE için ne kadar erken devreye girdiğini daha ince taneli boyutlarla (ör. 30, 40 makine) haritalamak
+- Solver memory kullanımı ölçümü
+- Mümkünse alternatif formülasyon (zaman-indeksli ya da decomposition) fizibilite değerlendirmesi — kapsamlı bir yeniden tasarım, ayrı bir karar gerektirir
