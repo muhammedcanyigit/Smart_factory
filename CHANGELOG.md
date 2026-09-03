@@ -2,6 +2,14 @@
 
 Bu dosya, projede yapılan önemli değişikliklerin kaydını tutar. En yeni değişiklik en üstte. Format ve güncelleme kuralı için bkz. [CLAUDE.md](CLAUDE.md).
 
+## 2026-09-02 — Phase 19: Deneysel değerlendirme + önemli ölçeklenme bulgusu
+
+- SMALL (120sn) ve MEDIUM (180sn) için `optimization/comparison.py` ile resmi "final" hedef deneyleri koşuldu, `docs/experiments.md`'ye işlendi.
+- SMALL: %10.67 iyileşme (gap %5.33). MEDIUM: solver 180sn'de warm-start'tan hiç ilerleyemedi (gap %74.95, %0 iyileşme).
+- **Önemli bulgu**: LARGE için model KURULUMU (henüz çözmeden) 8569 saniye (2.4 saat) sürdü. Kök neden doğrulandı: Phase 5'teki C3 (ikili çakışma) kısıtının `y[o,o']` değişken sayısı, aynı makine tipini paylaşan operasyon sayısının karesiyle (O(n²)) büyüyor — SMALL→LARGE arası 20x operasyon artışı, 413x çift artışına yol açtı. Kod hatası değil, seçilen formülasyonun bilinen ölçeklenme sınırı.
+- LARGE için çözme denenmedi (anlamsız zaman kaybı olurdu); bulgunun kendisi dürüstçe "sonuç" olarak raporlandı.
+- `docs/decision-log.md`'ye kök neden analizi detaylı yazıldı.
+
 ## 2026-08-20 — Phase 18: Before/After görselleştirme güçlendirildi
 
 - `frontend/index.html`: Before/After tablosuna renkli değişim rozeti (yeşil/kırmızı/gri %) eklendi; What-If senaryo karşılaştırmasına da bar chart eklendi (`renderBarChart` yeniden kullanılabilir hale getirildi).

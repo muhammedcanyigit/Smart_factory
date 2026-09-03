@@ -125,12 +125,18 @@ Burada da gerçekten test ettim — sadece "kod yazdım, çalışır" demedim. B
 
 Faz 17'deki Before/After tablosunu güçlendirdik: artık her satırda "bu metrik iyileşti mi kötüleşti mi" **renkli bir rozet** (yeşil = iyi, kırmızı = kötü) olarak gösteriliyor — sayılara tek tek bakmak yerine bir bakışta anlaşılıyor. Ayrıca senaryo karşılaştırmasına da (önceden sadece tablo vardı) bir grafik ekledik.
 
+## Faz 19 — Büyük Fabrikada Sistemin Sınırını Bulduk
+
+SMALL, MEDIUM ve LARGE (büyük fabrika: 50 makine, 1000 iş) üzerinde sistematik testler yaptık. SMALL'da her şey iyi çalışıyor (%10.67 iyileşme). MEDIUM'da işler zorlaşmaya başladı — solver, verdiğimiz sürede başlangıç planını hiç iyileştiremedi. LARGE'da ise çok çarpıcı bir şey oldu: matematik bulmacasını **kurmak bile 2.4 saat** sürdü — daha çözmeye bile başlamadan!
+
+Bunu "bir hata var" deyip gizlemek yerine sebebini araştırdım. Sebep şu: modelimizdeki bir kural ("aynı tip makineyi paylaşan iki iş birbirini beklemeli" kuralı), makine sayısı arttıkça **kareli şekilde** büyüyor — 20 kat daha fazla iş, 400 küsur kat daha fazla "hangisi önce" sorusu demek. Bu, kod hatası değil, en başta (fazlar 4-5'te) seçtiğimiz matematiksel yöntemin bilinen bir sınırı. Bunu dürüstçe böyle yazdım — bitirme projesi raporunda "büyük ölçekte sistem şurada zorlanıyor, sebebi bu" demek, "her şey mükemmel çalışıyor" demekten çok daha değerli ve inandırıcı.
+
 ---
 
 ## Şu An Neredeyiz?
 
-24 aşamadan **19'unu bitirdik** (Faz 0'dan Faz 18'e kadar). Fabrikanın verisini ürettik, planları kurup optimize ettik, bilgisayara tahmin yapmayı öğrettik, dijital ikiz ve simülasyon kurduk, senaryoları test ettik, hepsini birbirine bağladık, ve görsel, anlaşılır bir dashboard'umuz var.
+24 aşamadan **20'sini bitirdik** (Faz 0'dan Faz 19'a kadar). Fabrikanın verisini ürettik, planları kurup optimize ettik, bilgisayara tahmin yapmayı öğrettik, dijital ikiz ve simülasyon kurduk, senaryoları test ettik, hepsini birbirine bağlayıp bir dashboard'a koyduk, ve sistemin büyük ölçekte nerede zorlandığını dürüstçe bulup belgeledik.
 
 ## Sırada Ne Var?
 
-**Faz 19 — Deneysel Değerlendirme**: Şu ana kadar SMALL üzerinde çok test yaptık. Şimdi sistematik olarak SMALL/MEDIUM/LARGE'ın hepsinde deneyler yapıp, sonuçları düzenli bir şekilde raporlayacağız — bitirme projesi raporunun "Results" bölümünün temeli.
+**Faz 20 — Stress Test**: Faz 19'da bulduğumuz sınırı daha ince taneli şekilde haritalayacağız — tam olarak kaç makine/iş'te işler zorlaşmaya başlıyor, hafıza kullanımı nasıl değişiyor.
