@@ -131,12 +131,20 @@ SMALL, MEDIUM ve LARGE (büyük fabrika: 50 makine, 1000 iş) üzerinde sistemat
 
 Bunu "bir hata var" deyip gizlemek yerine sebebini araştırdım. Sebep şu: modelimizdeki bir kural ("aynı tip makineyi paylaşan iki iş birbirini beklemeli" kuralı), makine sayısı arttıkça **kareli şekilde** büyüyor — 20 kat daha fazla iş, 400 küsur kat daha fazla "hangisi önce" sorusu demek. Bu, kod hatası değil, en başta (fazlar 4-5'te) seçtiğimiz matematiksel yöntemin bilinen bir sınırı. Bunu dürüstçe böyle yazdım — bitirme projesi raporunda "büyük ölçekte sistem şurada zorlanıyor, sebebi bu" demek, "her şey mükemmel çalışıyor" demekten çok daha değerli ve inandırıcı.
 
+## Faz 20 — Sınırın Tam Yerini Bulduk
+
+Faz 19'da "MEDIUM iyi, LARGE çok kötü" diyorduk ama arada ne olduğunu bilmiyorduk. Bu fazda araya 5 ara nokta (25, 30, 35, 40, 45 makine) koyup teker teker denedim. Sonuç net: **40 makineye kadar makul** (2.5 dakikaya kadar kurulum süresi), **45 makineden itibaren pratik olarak kullanılamaz** hale geliyor. Hatta 40'tan 50 makineye çıkarken (sadece %25 daha fazla makine) süre **57 kat** arttı — beklediğimden bile daha sert bir uçurum.
+
+Bunu net bir sayı olarak elde etmiş olmak önemli: artık "sistemimiz büyük ölçekte zorlanıyor" gibi belirsiz bir cümle yerine, "sistemimiz ~40 makineye kadar güvenilir, bunun sebebi şu matematiksel kısıt" diyebiliyoruz. Bu, bir bitirme projesi raporu için tam olarak istediğimiz türden dürüst, sayısal bir sonuç.
+
+Bu arada, bu sınırı gerçekten aşmak için modelin bir parçasını (Faz 4-5'te kurduğumuz "makine çakışması" kuralını) farklı bir matematiksel yöntemle yeniden kurmayı da konuştuk — ama bu büyük bir yeniden tasarım işi, projenin sonuna, çekirdek sistem tamamlandıktan sonra bırakmaya karar verdik.
+
 ---
 
 ## Şu An Neredeyiz?
 
-24 aşamadan **20'sini bitirdik** (Faz 0'dan Faz 19'a kadar). Fabrikanın verisini ürettik, planları kurup optimize ettik, bilgisayara tahmin yapmayı öğrettik, dijital ikiz ve simülasyon kurduk, senaryoları test ettik, hepsini birbirine bağlayıp bir dashboard'a koyduk, ve sistemin büyük ölçekte nerede zorlandığını dürüstçe bulup belgeledik.
+24 aşamadan **21'ini bitirdik** (Faz 0'dan Faz 20'ye kadar). Fabrikanın verisini ürettik, planları kurup optimize ettik, bilgisayara tahmin yapmayı öğrettik, dijital ikiz ve simülasyon kurduk, senaryoları test ettik, hepsini birbirine bağlayıp bir dashboard'a koyduk, ve sistemin büyük ölçekte tam olarak nerede zorlandığını sayısal olarak bulduk.
 
 ## Sırada Ne Var?
 
-**Faz 20 — Stress Test**: Faz 19'da bulduğumuz sınırı daha ince taneli şekilde haritalayacağız — tam olarak kaç makine/iş'te işler zorlaşmaya başlıyor, hafıza kullanımı nasıl değişiyor.
+**Faz 21 — Testler**: Şu ana kadar her fazda elle/script'lerle test ettik. Şimdi bunları kalıcı, otomatik testler (unit test) haline getireceğiz — hem "hiçbir şeyi kırmadık" güvencesi hem de bitirme projesi raporunun "Testing" bölümü için.

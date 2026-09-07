@@ -93,8 +93,32 @@ Bu gözlem, ileride Phase 9'da optimizasyon sonucuyla kıyaslarken **her iki bas
 
 **Not**: MEDIUM'un burada "final" hedefte %74.95 gap vermesi, Phase 8'deki MEDIUM "makespan-only" testiyle (gap %0.21) çelişmiyor — o test çok daha küçük bir modeldi (`w[o,t]` yok). Enerji mekanizması eklenince model büyüklüğü/zorluğu kalitatif olarak değişiyor.
 
-## Planlanan İçerik (Phase 20)
+## Phase 20 — Stress Test: "Diz Noktası" (Knee Point) Haritalaması
 
-- Stress test: bu fazda bulunan O(n²) darboğazın (C3/y_pairs) MEDIUM/LARGE için ne kadar erken devreye girdiğini daha ince taneli boyutlarla (ör. 30, 40 makine) haritalamak
-- Solver memory kullanımı ölçümü
-- Mümkünse alternatif formülasyon (zaman-indeksli ya da decomposition) fizibilite değerlendirmesi — kapsamlı bir yeniden tasarım, ayrı bir karar gerektirir
+Phase 19'da MEDIUM (8.53sn) ile LARGE (8569sn) arasında devasa bir fark bulunmuştu. Bu fazda, aradaki büyüklüklerde (25, 30, 35, 40, 45 makine — orantılı iş sayılarıyla) **sadece model kurulum süresi** ölçülerek darboğazın tam olarak nerede başladığı haritalandı. Her nokta için 300 saniyelik sert bir zaman sınırı kullanıldı (bir nokta zaten zaman aşımına uğrarsa daha büyüğü denenmedi — monoton artış zaten biliniyor).
+
+| Makine / İş | Operasyon | Binary Değişken | Kısıt | Model Kurulum Süresi |
+|---:|---:|---:|---:|---:|
+| 20 / 250 (MEDIUM) | 814 | 214.172 | 856.228 | 8.53 sn |
+| 25 / 350 | 1.144 | 341.656 | 1.755.294 | 18.85 sn |
+| 30 / 450 | 1.480 | 497.172 | 3.248.548 | 33.24 sn |
+| 35 / 550 | 1.790 | 664.671 | 5.206.096 | 54.08 sn |
+| 40 / 700 | 2.279 | 971.424 | 9.307.597 | 151.10 sn |
+| 45 / 850 | — | — | — | **>300 sn (zaman aşımı)** |
+| 50 / 1000 (LARGE) | 3.245 | 1.741.716 | 25.465.109 | 8569.40 sn |
+
+**Büyüme oranları (art arda noktalar arası)**:
+
+| Makine artışı | Süre artışı |
+|---|---|
+| 20→25 (1.25×) | 2.21× |
+| 25→30 (1.20×) | 1.76× |
+| 30→35 (1.17×) | 1.63× |
+| 35→40 (1.14×) | 2.79× |
+| **40→50 (1.25×)** | **56.71×** |
+
+**Bulgu — pratik sınır net şekilde 40-45 makine arasında**: 20'den 40 makineye kadar büyüme, C3'ün bilinen O(n²) karakteriyle kabaca tutarlı, kademeli bir artış (~1.6-2.8× her adımda). Ama 40→50 arası (sadece %25 daha fazla makine) süre **56.71 kat** arttı — bu, saf O(n²) beklentisinin (1.25²≈1.56×) çok üzerinde. Bu ek ivmelenme muhtemelen ikinci bir etkenden kaynaklanıyor: milyonlarca kısıtlı bir Pyomo modelini Python'da bellekte tutmanın/indekslemenin, belirli bir büyüklükten sonra kendi başına süper-lineer bir yüke dönüşmesi (bellek baskısı, garbage collection). Bu ayrıca doğrulanabilir bir hipotez ama şu an için sadece not ediliyor.
+
+**Pratik sonuç**: Mevcut formülasyonla sistem **~40 makine / ~700 işe kadar** (build ~2.5 dakika) makul sınırlar içinde kalıyor; 45 makineden itibaren pratik olarak kullanılamaz hale geliyor. Bu, bitirme projesi raporunun "Limitations" bölümü için net, sayısal bir sınır.
+
+**Seçenek B notu**: Kullanıcıyla, bu sınırı aşmak için C3'ü farklı bir formülasyonla (ör. zaman-indeksli) yeniden kurmanın (Seçenek B) mümkün olduğu konuşuldu; kullanıcı bunu **projenin sonuna, çekirdek sistem tamamlandıktan sonra** değerlendirmeye bıraktı (bkz. `docs/decision-log.md`). Bu doküman güncel formülasyonun sınırlarını olduğu gibi, gizlemeden yansıtıyor.

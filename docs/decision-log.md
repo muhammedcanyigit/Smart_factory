@@ -221,3 +221,16 @@ Her fazın sonunda kısa bir madde eklenir: **Öncüller** (o faza girerken vars
 - **Karar**: LARGE için çözme denemesi yapılmadı (kurulum süresi zaten pratik sınırın çok üzerinde, çözme denemesi anlamsız zaman kaybı olurdu). Bunun yerine bu bulgunun kendisi LARGE'ın "sonucu" olarak dürüstçe raporlandı — tam olarak orijinal proje planındaki "büyük problemler exact olarak çözülemiyorsa gizlenmez" ilkesiyle örtüşüyor.
 - **İkinci bulgu — MEDIUM "final" hedefte de zorlanıyor**: 180 saniyede solver, warm-start'tan (FCFS) **hiç iyileşemedi** (gap %74.95) — SMALL'daki %5.33 gap'ten çok daha kötü. Bunun nedeni enerji mekanizmasının (`w[o,t]`) MEDIUM'da eklediği ek yük (814×168≈136.752 ek ikili değişken) + C3'ün genişlemiş hali. Phase 8'deki MEDIUM "makespan-only" testinin (gap %0.21) bu sonuçla ÇELİŞMEDİĞİ not edildi — o test çok daha küçük bir modeldi (enerji mekanizması yoktu), doğrudan karşılaştırılamaz.
 - **Sonuç — tutarlı bir ölçeklenme hikayesi**: SMALL (çalışıyor, %10.67 iyileşme) → MEDIUM (warm-start'tan ilerleyemiyor, %0 iyileşme) → LARGE (kurulum bile tamamlanamıyor). Bu, MILP tabanlı exact çözümün mevcut formülasyonla nerede pratik sınırına dayandığını net ve dürüst şekilde gösteriyor — Phase 20'nin (stress test) üzerine inşa edeceği temel bu.
+
+### Phase 20 için kullanıcı kararı — Seçenek A vs B
+
+Kullanıcıya iki yol sunuldu: **(A) Haritalama** — mevcut formülasyonu değiştirmeden, O(n²) sınırının tam olarak nerede devreye girdiğini ara büyüklüklerle (MEDIUM-LARGE arası) ölçmek; **(B) Yeniden formülasyon** — C3 kısıtını farklı bir matematiksel yaklaşımla (ör. zaman-indeksli formülasyon) yeniden kurup LARGE'ı gerçekten çözülebilir hale getirmeye çalışmak.
+
+**Karar (2026-09-07)**: Kullanıcı **Seçenek A** ile devam edilmesini istedi. **Seçenek B, projenin sonuna bırakıldı** — çekirdek sistem (Phase 0-22 + Final Demo) tamamlandıktan sonra, zaman/öncelik durumuna göre değerlendirilecek bir "gelecek iş" (future work) olarak kaydedildi. Bu, orijinal proje planındaki "İleri Seviye Opsiyonel Özellikler" mantığıyla tutarlı — çekirdek önce, iyileştirmeler sonra.
+
+## Phase 20 — Stress Test (Seçenek A: Haritalama)
+
+- **Uygulama**: `/private/tmp/.../scratchpad/run_stress_sweep.py` + `stress_point.py` — MEDIUM-LARGE arası 5 ara nokta (25/30/35/40/45 makine, orantılı iş sayısı), her biri ayrı subprocess'te 300sn sert zaman sınırıyla test edildi. Geçici config dosyaları scratchpad'te oluşturuldu, proje `config/config.yaml`'a dokunulmadı.
+- **Sonuç**: 20→40 makine arası kademeli, C3'ün O(n²) karakteriyle kabaca tutarlı bir artış (8.53sn→151.10sn). 45 makinede 300sn sınırı aşıldı, sweep orada durduruldu (daha büyük noktalar denenmedi — anlamsız zaman kaybı olurdu).
+- **Beklenmedik ikinci katman**: 40→50 makine arası (sadece %25 daha fazla makine) süre **56.71 kat** arttı — saf O(n²) beklentisinin (≈1.56×) çok üzerinde. Bu, C3'ün bilinen karesel büyümesinin ÜSTÜNE binen ikinci bir etken olduğunu düşündürüyor (muhtemelen çok büyük Pyomo modellerinde Python bellek/GC baskısı) — doğrulanmadı, sadece gözlem olarak not edildi, ileri araştırma gerektirir.
+- **Pratik sonuç**: Mevcut formülasyon **~40 makine/~700 işe kadar** (build ~2.5 dk) kullanılabilir; 45 makineden itibaren pratik değil. Bu net sayısal sınır `docs/experiments.md`'ye işlendi — rapor "Limitations" bölümü için hazır.

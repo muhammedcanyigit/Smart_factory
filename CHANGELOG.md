@@ -2,6 +2,13 @@
 
 Bu dosya, projede yapılan önemli değişikliklerin kaydını tutar. En yeni değişiklik en üstte. Format ve güncelleme kuralı için bkz. [CLAUDE.md](CLAUDE.md).
 
+## 2026-09-07 — Phase 20: Stress test — ölçeklenme "diz noktası" haritalandı
+
+- MEDIUM (20m/8.53sn) ile LARGE (50m/8569sn) arası 5 ara noktada (25/30/35/40/45 makine) model kurulum süresi ölçüldü (300sn sert sınırla, scratchpad'teki geçici scriptlerle).
+- **Bulgu**: 20→40 makine arası kademeli artış (C3'ün bilinen O(n²) karakteriyle tutarlı); 45 makinede 300sn aşıldı. 40→50 arası (%25 makine artışı) süre 56.71× arttı — beklenenden çok daha sert, muhtemel ikinci bir etken (Python bellek/GC baskısı) var, doğrulanmadı.
+- **Pratik sonuç**: Sistem ~40 makine/~700 işe kadar kullanılabilir, 45+'ta pratik değil. `docs/experiments.md` "Limitations" bölümü için net sayısal sınır kazandı.
+- Kullanıcıyla Seçenek A (haritalama, bu faz) / Seçenek B (yeniden formülasyon) konuşuldu; B projenin sonuna, çekirdek sistem bitince değerlendirilmek üzere ertelendi (`docs/decision-log.md`).
+
 ## 2026-09-02 — Phase 19: Deneysel değerlendirme + önemli ölçeklenme bulgusu
 
 - SMALL (120sn) ve MEDIUM (180sn) için `optimization/comparison.py` ile resmi "final" hedef deneyleri koşuldu, `docs/experiments.md`'ye işlendi.
