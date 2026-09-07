@@ -32,11 +32,12 @@ Bu projede yapılan her önemli değişiklik (yeni dosya/modül eklendi, bir pha
 
 - `PROJE-OZETI.md` (ana klasörde) — hiç teknik terim yok, faz faz "ne yaptık, niye yaptık, ne oldu" hikayesi. En basit, en hızlı giriş noktası.
 - `docs/project-plan.md` — Phase 0 proje tanımı, terminoloji, mimari, yol haritası, dataset stratejisi, riskler.
-- `docs/architecture.md` — sistem mimarisi detayları (Phase 22'de ve ilerledikçe doldurulur).
-- `docs/mathematical-model.md` — MILP modeli: parametreler, değişkenler, kısıtlar, amaç fonksiyonu (Phase 4-6'da doldurulur).
-- `docs/dataset.md` — veri modeli, synthetic generator mantığı, referans alınan gerçek datasetler (Phase 1-2'de doldurulur).
-- `docs/experiments.md` — deney tasarımı ve sonuçları (Phase 19-20'de doldurulur).
+- `docs/architecture.md` — modül sorumlulukları, gerçek veri akışı diyagramı, bilinen sınırlamalar (Phase 22'de dolduruldu).
+- `docs/mathematical-model.md` — MILP modeli: parametreler, değişkenler, kısıtlar, amaç fonksiyonu (Phase 4-6'da dolduruldu).
+- `docs/dataset.md` — veri modeli, synthetic generator mantığı, referans alınan gerçek datasetler (Phase 1-2'de dolduruldu).
+- `docs/experiments.md` — deney tasarımı ve sonuçları (Phase 19-20'de dolduruldu).
 - `docs/decision-log.md` — her fazın öncülleri, kararları ve karşılaşılan problemleri (kısa, faz faz). CHANGELOG.md'den farklı: o "ne değişti" der, bu "neden böyle karar verildi" der.
+- `docs/final-demo.md` + `docs/demo-screenshots/` — projenin uçtan uca, gerçek ekran görüntüleriyle kaydedilmiş final demosu.
 - `docs/report/` — bitirme projesi raporu taslakları.
 
 ## Teknoloji Stack (özet)
