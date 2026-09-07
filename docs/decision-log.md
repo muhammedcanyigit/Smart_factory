@@ -242,3 +242,13 @@ Kullanıcıya iki yol sunuldu: **(A) Haritalama** — mevcut formülasyonu deği
 - **Kapsam**: `test_data.py` (reproducibility, tip kapsamı, korelasyon, boyut kontrolü), `test_optimization.py` (minik örnekte Cmax=2.5 ve enerji-farkında zamanlama doğrulaması, makine çakışması yok, iki edge case: hiçbir uygun makine olmaması → infeasible ama çökmeme, sıfır job → Cmax=0), `test_simulation.py` (Phase 14'ün çapraz doğrulaması), `test_digital_twin.py` (Phase 13'ün başlangıç durumu + reset kontrolü), `test_ml.py` (feature tablosu, split reproducibility, model eğitimi/değerlendirme, Phase 12'nin tasarım kararı).
 - **Bulunan küçük tutarsızlık**: `python3 -m pytest` çalışıyordu ama düz `pytest` komutu `ModuleNotFoundError` veriyordu (proje kökü otomatik `sys.path`'e eklenmiyordu). `pytest.ini`'ye `pythonpath = .` eklenerek düzeltildi.
 - **Sonuç**: 21 test, **1.21 saniyede** tamamen geçiyor (`pytest tests/`).
+
+## Phase 22 — Nihai Mimari Sadeleştirme
+
+- **Öncül**: Proje ağacını tahminle değil, gerçek tarama ile denetlemek (`find` ile boş/stub dosyalar, kullanılmayan klasörler).
+- **Bulunan gerçek eksik 1**: `preprocessing/cleaning.py` Phase 0'dan beri 1 satırlık stub'du, hiç çağrılmamıştı — sentetik veri tasarım gereği zaten temiz üretiliyor. Gerçek bir `clean_dataset()`/`clean_operations()` fonksiyonuyla dolduruldu (yinelenen ID, eksik değer, negatif süre/enerji kontrolü) — hem "veri temizleme" kavramının somut kod karşılığı hem gerçek veri entegre edilirse hazır bir savunmacı katman. 3 yeni test eklendi (`tests/test_preprocessing.py`), toplam test sayısı 21→24.
+- **Bulunan gerçek eksik 2**: `experiments/optimization/` ve `experiments/ml/` klasörleri 21 faz boyunca hiç kullanılmamıştı (tüm çıktılar fiilen `experiments/results/`'a yazılmıştı) — kaldırıldı, "gerçek ihtiyaç olmadan klasör çoğaltma" ilkesine uygun.
+- **Küçük düzeltme**: `.pytest_cache/` proje `.gitignore`'unda değildi (bu makinede global gitignore sayesinde sorun çıkarmıyordu ama başka bir makinede/klonlamada commit'lenebilirdi) — eklendi.
+- **`docs/architecture.md` dolduruldu**: Phase 0'dan beri boş placeholder'dı. Artık modül sorumlulukları tablosu, gerçek veri akışı diyagramı (Phase 16'nın pipeline'ı), solver'ın neden iki arayüzü olduğunun gerekçesi (Phase 7-8 appsi hatası) ve bilinen sınırlamaların (ölçeklenme, kapasite, reproducibility, Digital Twin kapsamı) tek yerde toplandığı bir referans doküman.
+- **`README.md` güncellendi**: durum (23/24), klasör yapısı (baseline/ eklendi, experiments/ sadeleşti), test çalıştırma talimatı.
+- **Doğrulama**: Tüm değişikliklerden sonra `pytest tests/` (24/24 geçti) ve `backend.services.pipeline`/`preprocessing.cleaning` import smoke testi yeniden çalıştırıldı — hiçbir şey kırılmadı.

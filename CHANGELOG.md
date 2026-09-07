@@ -2,6 +2,15 @@
 
 Bu dosya, projede yapılan önemli değişikliklerin kaydını tutar. En yeni değişiklik en üstte. Format ve güncelleme kuralı için bkz. [CLAUDE.md](CLAUDE.md).
 
+## 2026-09-07 — Phase 22: Mimari sadeleştirme
+
+- `preprocessing/cleaning.py` dolduruldu (Phase 0'dan beri boş stub'du) — `clean_dataset()`/`clean_operations()`, 3 yeni test (`tests/test_preprocessing.py`), toplam test 21→24.
+- Kullanılmayan `experiments/optimization/` ve `experiments/ml/` klasörleri kaldırıldı (tüm çıktılar zaten `experiments/results/`'taydı).
+- `.gitignore`'a `.pytest_cache/` eklendi.
+- `docs/architecture.md` dolduruldu: modül sorumlulukları, gerçek veri akışı diyagramı, solver'ın iki arayüzünün gerekçesi, bilinen sınırlamalar (rapor "Limitations" bölümü için hazır).
+- `README.md` güncellendi (durum 23/24, klasör yapısı, test çalıştırma talimatı).
+- Doğrulama: `pytest tests/` (24/24) ve import smoke testi yeniden çalıştırıldı, kırılan bir şey yok.
+
 ## 2026-09-07 — Phase 21: pytest test suite (21 test, 1.21sn)
 
 - `tests/conftest.py` (paylaşılan `tiny_dataset`/`tiny_config` fixture'ları), `tests/test_data.py`, `test_optimization.py`, `test_simulation.py`, `test_digital_twin.py`, `test_ml.py` dolduruldu.
