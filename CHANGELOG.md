@@ -2,6 +2,14 @@
 
 Bu dosya, projede yapılan önemli değişikliklerin kaydını tutar. En yeni değişiklik en üstte. Format ve güncelleme kuralı için bkz. [CLAUDE.md](CLAUDE.md).
 
+## 2026-09-07 — Phase 21: pytest test suite (21 test, 1.21sn)
+
+- `tests/conftest.py` (paylaşılan `tiny_dataset`/`tiny_config` fixture'ları), `tests/test_data.py`, `test_optimization.py`, `test_simulation.py`, `test_digital_twin.py`, `test_ml.py` dolduruldu.
+- MILP testleri hız için Phase 7-8'in minik el-hesabı örneğini kullanıyor (SMALL/MEDIUM'un yavaş olduğu Phase 19-20'de bulunmuştu).
+- Edge case'ler eklendi: hiçbir uygun makine olmaması (infeasible ama çökmeme), sıfır job.
+- Bulunan hata: düz `pytest` komutu proje kökünü `sys.path`'e eklemiyordu (`python -m pytest` çalışıyordu). `pytest.ini` (`pythonpath = .`) ile düzeltildi.
+- `pytest` kuruldu (requirements.txt'te vardı, ortamda eksikti). 21/21 test geçiyor.
+
 ## 2026-09-07 — Phase 20: Stress test — ölçeklenme "diz noktası" haritalandı
 
 - MEDIUM (20m/8.53sn) ile LARGE (50m/8569sn) arası 5 ara noktada (25/30/35/40/45 makine) model kurulum süresi ölçüldü (300sn sert sınırla, scratchpad'teki geçici scriptlerle).

@@ -234,3 +234,11 @@ Kullanıcıya iki yol sunuldu: **(A) Haritalama** — mevcut formülasyonu deği
 - **Sonuç**: 20→40 makine arası kademeli, C3'ün O(n²) karakteriyle kabaca tutarlı bir artış (8.53sn→151.10sn). 45 makinede 300sn sınırı aşıldı, sweep orada durduruldu (daha büyük noktalar denenmedi — anlamsız zaman kaybı olurdu).
 - **Beklenmedik ikinci katman**: 40→50 makine arası (sadece %25 daha fazla makine) süre **56.71 kat** arttı — saf O(n²) beklentisinin (≈1.56×) çok üzerinde. Bu, C3'ün bilinen karesel büyümesinin ÜSTÜNE binen ikinci bir etken olduğunu düşündürüyor (muhtemelen çok büyük Pyomo modellerinde Python bellek/GC baskısı) — doğrulanmadı, sadece gözlem olarak not edildi, ileri araştırma gerektirir.
 - **Pratik sonuç**: Mevcut formülasyon **~40 makine/~700 işe kadar** (build ~2.5 dk) kullanılabilir; 45 makineden itibaren pratik değil. Bu net sayısal sınır `docs/experiments.md`'ye işlendi — rapor "Limitations" bölümü için hazır.
+
+## Phase 21 — Testler
+
+- **Öncül**: Proje boyunca elle/tek seferlik scriptlerle yapılan doğrulamaları (reproducibility, çapraz kontroller, minik el-hesabı örnekler, edge case'ler) kalıcı `pytest` testlerine dönüştürmek.
+- **Kod tarafı tasarım kararı**: MILP testleri, SMALL/MEDIUM gibi büyük çözümler yerine Phase 7-8'in minik el-hesabı örneğini (`tests/conftest.py::tiny_dataset` fixture) kullanıyor — Phase 19-20'nin bulguları (SMALL bile ~120sn sürebiliyor) göz önüne alınca, bir test suite'inin saniyeler içinde bitmesi gerektiği açıktı.
+- **Kapsam**: `test_data.py` (reproducibility, tip kapsamı, korelasyon, boyut kontrolü), `test_optimization.py` (minik örnekte Cmax=2.5 ve enerji-farkında zamanlama doğrulaması, makine çakışması yok, iki edge case: hiçbir uygun makine olmaması → infeasible ama çökmeme, sıfır job → Cmax=0), `test_simulation.py` (Phase 14'ün çapraz doğrulaması), `test_digital_twin.py` (Phase 13'ün başlangıç durumu + reset kontrolü), `test_ml.py` (feature tablosu, split reproducibility, model eğitimi/değerlendirme, Phase 12'nin tasarım kararı).
+- **Bulunan küçük tutarsızlık**: `python3 -m pytest` çalışıyordu ama düz `pytest` komutu `ModuleNotFoundError` veriyordu (proje kökü otomatik `sys.path`'e eklenmiyordu). `pytest.ini`'ye `pythonpath = .` eklenerek düzeltildi.
+- **Sonuç**: 21 test, **1.21 saniyede** tamamen geçiyor (`pytest tests/`).

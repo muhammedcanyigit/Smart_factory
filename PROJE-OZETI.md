@@ -139,12 +139,18 @@ Bunu net bir sayı olarak elde etmiş olmak önemli: artık "sistemimiz büyük 
 
 Bu arada, bu sınırı gerçekten aşmak için modelin bir parçasını (Faz 4-5'te kurduğumuz "makine çakışması" kuralını) farklı bir matematiksel yöntemle yeniden kurmayı da konuştuk — ama bu büyük bir yeniden tasarım işi, projenin sonuna, çekirdek sistem tamamlandıktan sonra bırakmaya karar verdik.
 
+## Faz 21 — Doğrulamalarımızı Kalıcı Hale Getirdik
+
+Bu güne kadar hep şöyle yaptık: bir şey kodladık, elle bir script yazıp test ettik, sonucu kontrol ettik, sonra o script'i attık. Bu fazda bunun yerine, o testleri **kalıcı** hale getirdik — artık `pytest` komutunu çalıştırınca 21 tane test **1.2 saniyede** otomatik çalışıyor ve "hiçbir şeyi kırmadık mı" diye kontrol ediyor. İleride bir kod değiştirdiğimizde, bu testler bize hemen haber verecek.
+
+Küçük bir pratik sorun da çözdüm: `pytest` komutu bazen projeyi bulamıyordu, bir ayar dosyasıyla düzelttim.
+
 ---
 
 ## Şu An Neredeyiz?
 
-24 aşamadan **21'ini bitirdik** (Faz 0'dan Faz 20'ye kadar). Fabrikanın verisini ürettik, planları kurup optimize ettik, bilgisayara tahmin yapmayı öğrettik, dijital ikiz ve simülasyon kurduk, senaryoları test ettik, hepsini birbirine bağlayıp bir dashboard'a koyduk, ve sistemin büyük ölçekte tam olarak nerede zorlandığını sayısal olarak bulduk.
+24 aşamadan **22'sini bitirdik** (Faz 0'dan Faz 21'e kadar). Fabrikanın verisini ürettik, planları kurup optimize ettik, bilgisayara tahmin yapmayı öğrettik, dijital ikiz ve simülasyon kurduk, senaryoları test ettik, hepsini birbirine bağlayıp bir dashboard'a koyduk, sistemin büyük ölçekte nerede zorlandığını bulduk, ve tüm bu doğrulamaları kalıcı otomatik testler haline getirdik.
 
 ## Sırada Ne Var?
 
-**Faz 21 — Testler**: Şu ana kadar her fazda elle/script'lerle test ettik. Şimdi bunları kalıcı, otomatik testler (unit test) haline getireceğiz — hem "hiçbir şeyi kırmadık" güvencesi hem de bitirme projesi raporunun "Testing" bölümü için.
+**Faz 22 — Nihai Mimari Sadeleştirme**: Proje klasör yapısını gözden geçirip, gerçekten ihtiyaç olmayan yerleri sadeleştireceğiz — son bir "temizlik" fazı. Ardından **Final Demo** ile proje tamamlanmış olacak (24/24).
