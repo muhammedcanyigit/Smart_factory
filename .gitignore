@@ -32,6 +32,9 @@ experiments/*/*
 # Jupyter
 .ipynb_checkpoints/
 
+# Test
+.pytest_cache/
+
 # OS / Editor
 .DS_Store
 .vscode/
