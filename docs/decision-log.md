@@ -252,3 +252,10 @@ Kullanıcıya iki yol sunuldu: **(A) Haritalama** — mevcut formülasyonu deği
 - **`docs/architecture.md` dolduruldu**: Phase 0'dan beri boş placeholder'dı. Artık modül sorumlulukları tablosu, gerçek veri akışı diyagramı (Phase 16'nın pipeline'ı), solver'ın neden iki arayüzü olduğunun gerekçesi (Phase 7-8 appsi hatası) ve bilinen sınırlamaların (ölçeklenme, kapasite, reproducibility, Digital Twin kapsamı) tek yerde toplandığı bir referans doküman.
 - **`README.md` güncellendi**: durum (23/24), klasör yapısı (baseline/ eklendi, experiments/ sadeleşti), test çalıştırma talimatı.
 - **Doğrulama**: Tüm değişikliklerden sonra `pytest tests/` (24/24 geçti) ve `backend.services.pipeline`/`preprocessing.cleaning` import smoke testi yeniden çalıştırıldı — hiçbir şey kırılmadı.
+
+## Final Demo
+
+- **Uygulama**: Dashboard, Playwright ile (headless Chromium) orijinal proje planındaki 15 adımlık "Final Product" akışına birebir uygun şekilde sürüldü: dashboard açılır → fabrika durumu görülür → OPTIMIZE ET → ML tahmini + optimizasyon + simülasyon → Before/After → What-If senaryo seçilir → yeniden optimize edilir → yeni plan gösterilir. 5 ekran görüntüsü `docs/demo-screenshots/`'a kaydedildi (kalıcı, projeye commit'lendi — `/tmp` değil), `docs/final-demo.md` bu akışı anlatıyor.
+- **Ölçülen gerçek sonuçlar (SMALL, time_limit=120sn)**: OPTIMIZE ET → toplam maliyette **%4.36 iyileşme** (Phase 11'in ML-tahminli senaryosuyla tutarlı — bu tam sistem gerçek dünyadaki gibi ML tahminiyle çalışıyor, "mükemmel bilgi" senaryosu (Phase 9, %10.67) değil). What-If (M001 arızası, yedekli makine) → **+%8.98** maliyet, sistem çökmedi, yeni geçerli plan bulundu (Phase 15'in bulgusuyla tutarlı).
+- **Konsol hatası**: yok, tüm akış boyunca.
+- **Proje durumu**: 24/24 faz tamamlandı. `PROJE-OZETI.md`'ye kapanış özeti eklendi.

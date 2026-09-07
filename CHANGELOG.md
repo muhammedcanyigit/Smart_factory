@@ -2,6 +2,13 @@
 
 Bu dosya, projede yapılan önemli değişikliklerin kaydını tutar. En yeni değişiklik en üstte. Format ve güncelleme kuralı için bkz. [CLAUDE.md](CLAUDE.md).
 
+## 2026-09-07 — Final Demo: Proje 24/24 tamamlandı
+
+- `docs/final-demo.md` + `docs/demo-screenshots/` (5 görsel) eklendi — dashboard, Playwright ile orijinal "Final Product" akışının (15 adım) tamamı boyunca sürüldü, konsol hatası yok.
+- Ölçülen gerçek sonuçlar: OPTIMIZE ET → %4.36 iyileşme (ML-tahminli, gerçekçi senaryo); What-If (M001 arızası) → +%8.98 maliyet, sistem çökmedi.
+- `PROJE-OZETI.md`'ye kapanış özeti eklendi (24/24). `CLAUDE.md`'nin doküman listesi güncellendi.
+- **Proje tamamlandı**: Phase 0'dan Final Demo'ya kadar 24 aşamanın hepsi bitti.
+
 ## 2026-09-07 — Phase 22: Mimari sadeleştirme
 
 - `preprocessing/cleaning.py` dolduruldu (Phase 0'dan beri boş stub'du) — `clean_dataset()`/`clean_operations()`, 3 yeni test (`tests/test_preprocessing.py`), toplam test 21→24.
