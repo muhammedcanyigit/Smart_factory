@@ -2,6 +2,12 @@
 
 Bu dosya, projede yapılan önemli değişikliklerin kaydını tutar. En yeni değişiklik en üstte. Format ve güncelleme kuralı için bkz. [CLAUDE.md](CLAUDE.md).
 
+## 2026-09-19 — `requirements.txt` sürümleri pin'lendi
+
+- Tüm paketler (`pandas`, `numpy`, `scikit-learn`, `pyomo`, `gurobipy`, `fastapi`, `uvicorn`, `plotly`, `pytest`, `pyyaml`), projenin geliştirilip test edildiği ortamdaki gerçek sürümlerle sabitlendi — dosya Phase 0'dan beri "taslak, sonra sabitlenecek" notuyla pin'siz duruyordu.
+- Eksik bir doğrudan bağımlılık eklendi: `joblib` (`ml/prediction.py` tarafından doğrudan import ediliyor, önceden yalnızca scikit-learn'ün örtük/transitive bağımlılığı olarak geliyordu).
+- `highspy` satırı (devre dışı yedek solver) da sürümle birlikte yorum satırında bırakıldı.
+
 ## 2026-09-19 — Taze `git clone` sonrası dashboard artık çökmüyor (ML modeli self-healing)
 
 - Sorun: `ml/models/*.joblib` reproducible oldukları için `.gitignore`'da — taze bir clone sonrası bu dosyalar diskte yok. `ml/predict_optimize.py::run_predict_optimize` bunların var olduğunu varsayıyordu, yoksa `FileNotFoundError` fırlatıp dashboard'da yakalanmamış bir hataya yol açıyordu.
