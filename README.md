@@ -35,7 +35,7 @@ Tarayıcıda [http://127.0.0.1:8000/](http://127.0.0.1:8000/) — "Fabrikayı Y�
 pytest tests/
 ```
 
-21+ test, ~1.2 saniyede tamamlanır (hız için minik el-hesabı örnekleri kullanır — SMALL/MEDIUM ölçeğinde tam çözüm dakikalar sürebiliyor, bkz. [docs/experiments.md](docs/experiments.md)).
+29 test, ~12 saniyede tamamlanır. Çoğu (24 tanesi) hız için minik el-hesabı örnekleri kullanır ve <2 saniyede biter — SMALL/MEDIUM ölçeğinde tam çözüm dakikalar sürebiliyor, bkz. [docs/experiments.md](docs/experiments.md). `tests/test_backend.py`'deki 5 tanesi ise gerçek SMALL veri setiyle FastAPI üzerinden uçtan uca çalışır (bilinçli olarak daha yavaş — amaç, geçmişte elle bulunan API hatalarını artık otomatik yakalamak).
 
 ## Veri Hakkında Not
 

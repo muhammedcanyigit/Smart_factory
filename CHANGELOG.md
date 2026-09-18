@@ -2,6 +2,13 @@
 
 Bu dosya, projede yapılan önemli değişikliklerin kaydını tutar. En yeni değişiklik en üstte. Format ve güncelleme kuralı için bkz. [CLAUDE.md](CLAUDE.md).
 
+## 2026-09-19 — Backend/API testleri eklendi (`tests/test_backend.py`, 24 -> 29 test)
+
+- FastAPI `TestClient` ile 5 smoke test eklendi: `/api/overview`, `/api/baseline`, `/api/scenarios`, `/api/optimize` (gerçek SMALL veri setiyle, `time_limit_seconds=10`) ve bilinmeyen senaryo adı için `400` kontrolü.
+- `test_optimize_response_is_json_serializable_and_feasible`, Phase 17'de bulunan hatanın (ham `HighsModelStatus` enum'unun response'a sızması) doğrudan regresyon testi — `solve_info`'da `model_status` anahtarının olmadığını doğruluyor.
+- Diğer testlerin aksine (tiny fixture, <2sn) bu dosya gerçek bir MILP çözdüğü için bilinçli olarak daha yavaş (~11sn) — `README.md`'deki test süresi notu (`21+ test, ~1.2sn` → `29 test, ~12sn`) buna göre güncellendi.
+- Doğrulama: `pytest tests/` — 29/29 geçti.
+
 ## 2026-09-19 — Eski/yanlış docstring düzeltildi (`ml/predict_optimize.py`)
 
 - `replay_with_ground_truth`'un docstring'i "bakım pencerelerini yeniden kontrol etmiyor" diyordu — bu, Phase 11'de düzeltilen eski bir sınırlamaydı; fonksiyon gerçekte `replay_schedule`'ı bakım kontrolüyle çağırıyor. Yalnızca yorum güncellendi, davranış zaten doğruydu (kod değişmedi).
