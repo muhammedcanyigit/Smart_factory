@@ -2,6 +2,11 @@
 
 Bu dosya, projede yapılan önemli değişikliklerin kaydını tutar. En yeni değişiklik en üstte. Format ve güncelleme kuralı için bkz. [CLAUDE.md](CLAUDE.md).
 
+## 2026-09-19 — Dashboard'a MEDIUM/LARGE ölçeklenme uyarısı eklendi
+
+- `frontend/index.html`: Dataset Boyutu seçicisinin altına, MEDIUM/LARGE seçildiğinde beliren bir uyarı kutusu eklendi. MEDIUM için "gap yüksek çıkabilir" notu (sarı), LARGE için "model kurulumu dakikalar-saatler sürebilir, Solver Süresi ayarıyla sınırlanmaz" notu (kırmızı) — Phase 19-20'nin bulduğu, daha önce hiç UI'a yansımayan bilinen sınır artık kullanıcıya gösteriliyor.
+- Doğrulama: Playwright (headless Chromium) ile boyut seçici SMALL→MEDIUM→LARGE→SMALL arası değiştirildi, uyarı metninin doğru göründüğü/kaybolduğu ve konsol hatası olmadığı doğrulandı.
+
 ## 2026-09-19 — Ölü konfigürasyon kaldırıldı
 
 - `.env.example` silindi — hiçbir Python dosyası `os.environ`/`dotenv` okumuyordu (grep ile doğrulandı), Phase 0'ın orijinal SQLite/env-var planından kalma, hiç kullanılmamış bir dosyaydı.
