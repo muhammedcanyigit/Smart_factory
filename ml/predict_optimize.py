@@ -57,10 +57,13 @@ def extract_assignment_and_predicted_order(model: pyo.ConcreteModel, data: dict)
 
 
 def replay_with_ground_truth(assigned_machine: dict, order: list, dataset: dict, data: dict) -> pd.DataFrame:
-    """Bilinen sınırlama: bu replay, bakım pencerelerini yeniden kontrol etmiyor
-    (Phase 3'teki ilk baseline'daki gibi bir basitleştirme) — gerçek süre
-    tahminden belirgin saparsa teorik olarak bir bakım penceresine denk
-    gelebilir. Tam ele alınması Phase 14 (Simulation) kapsamında."""
+    """Atama+sıra kararını (ML tahminiyle kurulan optimizasyondan) sabit tutup
+    GERÇEK (ground-truth) sürelerle yeniden zamanlar — `optimization/replay.py::
+    replay_schedule`'ı çağırır, bakım pencerelerini de hesaba katarak (bkz. Phase
+    11'de bulunup düzeltilen warm-start hatası, docs/decision-log.md): gerçek süre
+    tahminden sapıp bir bakım penceresine denk gelirse, başlangıç otomatik olarak
+    bakım bitimine itilir — aynı mantık `optimization/warmstart.py::apply_warm_start`
+    tarafından da paylaşılıyor."""
     ground_truth_p = dict(zip(dataset["operations"]["operation_id"], dataset["operations"]["processing_time"]))
     ground_truth_e = dict(zip(dataset["operations"]["operation_id"], dataset["operations"]["energy_consumption"]))
     op_seq = dict(zip(dataset["operations"]["operation_id"], dataset["operations"]["sequence_no"]))

@@ -2,6 +2,10 @@
 
 Bu dosya, projede yapılan önemli değişikliklerin kaydını tutar. En yeni değişiklik en üstte. Format ve güncelleme kuralı için bkz. [CLAUDE.md](CLAUDE.md).
 
+## 2026-09-19 — Eski/yanlış docstring düzeltildi (`ml/predict_optimize.py`)
+
+- `replay_with_ground_truth`'un docstring'i "bakım pencerelerini yeniden kontrol etmiyor" diyordu — bu, Phase 11'de düzeltilen eski bir sınırlamaydı; fonksiyon gerçekte `replay_schedule`'ı bakım kontrolüyle çağırıyor. Yalnızca yorum güncellendi, davranış zaten doğruydu (kod değişmedi).
+
 ## 2026-09-19 — Dashboard'a MEDIUM/LARGE ölçeklenme uyarısı eklendi
 
 - `frontend/index.html`: Dataset Boyutu seçicisinin altına, MEDIUM/LARGE seçildiğinde beliren bir uyarı kutusu eklendi. MEDIUM için "gap yüksek çıkabilir" notu (sarı), LARGE için "model kurulumu dakikalar-saatler sürebilir, Solver Süresi ayarıyla sınırlanmaz" notu (kırmızı) — Phase 19-20'nin bulduğu, daha önce hiç UI'a yansımayan bilinen sınır artık kullanıcıya gösteriliyor.
