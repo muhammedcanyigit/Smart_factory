@@ -2,6 +2,13 @@
 
 Bu dosya, projede yapılan önemli değişikliklerin kaydını tutar. En yeni değişiklik en üstte. Format ve güncelleme kuralı için bkz. [CLAUDE.md](CLAUDE.md).
 
+## 2026-09-19 — Ölü konfigürasyon kaldırıldı
+
+- `.env.example` silindi — hiçbir Python dosyası `os.environ`/`dotenv` okumuyordu (grep ile doğrulandı), Phase 0'ın orijinal SQLite/env-var planından kalma, hiç kullanılmamış bir dosyaydı.
+- `config/config.yaml`'daki `database:` ve `api:` blokları kaldırıldı — ikisi de hiçbir kodda okunmuyordu (backend host/port'u uvicorn CLI'den alıyor, veritabanı hiç kullanılmadı; sistem tamamen in-memory/stateless ilerledi).
+- `optimization.solver` alanına, bu alanın şu an sadece dokümantasyon amaçlı olduğunu (gerçek seçimin `native_solver.py`'ye gömülü olduğunu) belirten bir not eklendi — aynı hatanın (kod okumadığı bir config alanı bırakmak) tekrarlanmaması için.
+- Doğrulama: `pytest tests/` (24/24), `backend.main` import smoke testi.
+
 ## 2026-09-19 — `requirements.txt` sürümleri pin'lendi
 
 - Tüm paketler (`pandas`, `numpy`, `scikit-learn`, `pyomo`, `gurobipy`, `fastapi`, `uvicorn`, `plotly`, `pytest`, `pyyaml`), projenin geliştirilip test edildiği ortamdaki gerçek sürümlerle sabitlendi — dosya Phase 0'dan beri "taslak, sonra sabitlenecek" notuyla pin'siz duruyordu.

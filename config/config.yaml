@@ -17,6 +17,9 @@ dataset:
       jobs: 1000
 
 optimization:
+  # NOT: bu alan şu an sadece dokümantasyon amaçlı — hiçbir kod bu alanı
+  # okumuyor. Gerçek solver seçimi optimization/native_solver.py'ye doğrudan
+  # gömülü (gurobipy). Bkz. docs/decision-log.md "Solver Değişikliği: HiGHS -> Gurobi".
   solver: gurobi         # gurobi (aktif, 2026-09-18'den itibaren) | highs (devre dışı, yedek)
   time_limit_seconds: 300
   big_m: 168             # = horizon_hours; ispatlanabilir güvenli minimum (bkz. docs/mathematical-model.md Bölüm 5, Phase 8 revizyonu). Önceki değer 336 idi.
@@ -24,10 +27,3 @@ optimization:
     production_time: 50   # c_time: $/saat (üretim süresi maliyeti)
     energy_cost: 1        # zaten $ cinsinden, dönüşüm gerekmiyor
     tardiness: 100         # c_tardy: $/saat (gecikme cezası)
-
-database:
-  url: "sqlite:///./data/factory.db"
-
-api:
-  host: "127.0.0.1"
-  port: 8000
