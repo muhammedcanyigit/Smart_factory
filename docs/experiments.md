@@ -18,7 +18,9 @@ SMALL dataset (10 makine, 50 job, seed=42) üzerinde iki baseline stratejisi ça
 
 Bu gözlem, ileride Phase 9'da optimizasyon sonucuyla kıyaslarken **her iki baseline'ın da** referans olarak tutulmasını gerektiriyor — "hangi baseline'a göre iyileşme" sorusunun cevabı tek bir sayı değil.
 
-## Phase 9 — Baseline vs Optimized (SMALL)
+## Phase 9 — Baseline vs Optimized (SMALL) — *HiGHS ile ölçüldü, tarihi kayıt*
+
+> **2026-09-19 notu**: Bu bölümdeki (ve Phase 11/15/19'daki) sayılar, o zamanki aktif solver olan **HiGHS** ile ölçüldü. 2026-09-18'de solver Gurobi'ye geçirildi (bkz. `docs/decision-log.md`); Gurobi genelde belirgin şekilde daha iyi/hızlı sonuç buluyor. Bu tarihi sayılar CLAUDE.md kural 3 gereği (sonuç uydurma/silme yok) olduğu gibi bırakıldı — güncel Gurobi sonuçları için dokümanın en altındaki **"Solver Güncellemesi: Gurobi"** bölümüne bakın.
 
 `optimization/comparison.py --size small --time-limit 120` çalıştırıldı (warm-start: FCFS, Stage "final" — bkz. Phase 8 bulgusu, makespan yerine birleşik $ hedefiyle karşılaştırma yapılıyor).
 
@@ -39,7 +41,7 @@ Bu gözlem, ileride Phase 9'da optimizasyon sonucuyla kıyaslarken **her iki bas
 
 **Reproducibility notu**: Veri üretimi (`SEED=42`) tam deterministik, ama **solver'ın time-limit'e dayalı sonucu değildir** — aynı model, farklı çalıştırmalarda (sistem yükü, zamanlama farkları nedeniyle) hafifçe farklı ama benzer kalitede çözümler bulabilir. Bu, MIP zaman sınırlı çözümlerin bilinen bir karakteristiği — veri üretiminin reproducibility'siyle karıştırılmamalı.
 
-## Phase 11 — Predict → Optimize (SMALL)
+## Phase 11 — Predict → Optimize (SMALL) — *HiGHS ile ölçüldü, tarihi kayıt*
 
 `ml/predict_optimize.py --size small --time-limit 120`: Phase 10'un ML modeli süreleri tahmin etti, optimizasyon bu tahminle plan kurdu, plan GERÇEK sürelerle yeniden zamanlandı (`optimization/replay.py`) ve öyle değerlendirildi:
 
@@ -51,7 +53,7 @@ Bu gözlem, ileride Phase 9'da optimizasyon sonucuyla kıyaslarken **her iki bas
 
 **Yorum**: ML tabanlı optimizasyon, teorik maksimum iyileşmenin (mükemmel bilgiyle elde edilebilecek %10.67) yalnızca **%40.85**'ini yakalayabildi. Aradaki fark (%59.15), Phase 10'daki ML tahmin hatasının (R² 0.54) doğrudan maliyetidir — "tahmin ne kadar iyi olursa, optimizasyon o kadar değer katar" ilişkisinin somut, ölçülmüş kanıtı.
 
-## Phase 15 — What-If Senaryolar (SMALL)
+## Phase 15 — What-If Senaryolar (SMALL) — *HiGHS ile ölçüldü, tarihi kayıt*
 
 `simulation/scenarios.py`, orijinal (senaryosuz) optimize edilmiş plan ($11659.12) ile 5 farklı senaryo çalıştırması karşılaştırıldı:
 
@@ -71,6 +73,8 @@ Bu gözlem, ileride Phase 9'da optimizasyon sonucuyla kıyaslarken **her iki bas
 
 ### Model Boyutu (çözmeden önce, sadece kurulum)
 
+> Bu tablo **solver'dan bağımsız** — model kurulumu (`optimization/model.py::build_model`) tamamen Pyomo tarafında, hiçbir solver çağrısı olmadan gerçekleşir. Gurobi'ye geçiş bu sayıları etkilemez, hâlâ geçerli.
+
 | | Operasyon | Binary Değişken | Kısıt | Model Kurulum Süresi |
 |---|---:|---:|---:|---:|
 | SMALL | 162 | 30.437 | 64.990 | 0.49 sn |
@@ -79,7 +83,9 @@ Bu gözlem, ileride Phase 9'da optimizasyon sonucuyla kıyaslarken **her iki bas
 
 **Kök neden (doğrulandı)**: Operasyon sayısı SMALL→LARGE arası 20 kat artarken, aynı makine tipini paylaşan operasyon **çiftleri** (C3 kısıtının temeli, `y[o,o']`) 413 kat arttı (2.789 → 1.151.635) — çünkü bu ilişki karesel (O(n²)) büyüyor: her makine tipi için o tipteki operasyon sayısının karesiyle orantılı. Bu, Phase 5'te seçilen "ikili çakışma" (pairwise disjunctive, Big-M) kısıt formülasyonunun literatürde bilinen bir zayıflığı — kod hatası değil, seçilen matematiksel yaklaşımın büyük ölçekteki doğal sınırı. Alternatif formülasyonlar (ör. zaman-indeksli) farklı ölçeklenme karakteristiği gösterir ama daha fazla değişken/karmaşıklık gerektirir — bu bir sonraki faz (Phase 20) veya gelecekteki bir iyileştirme için not.
 
-### Baseline vs Optimized (Stage "final")
+### Baseline vs Optimized (Stage "final") — *HiGHS ile ölçüldü, tarihi kayıt*
+
+> SMALL ve MEDIUM için güncel Gurobi sayıları dokümanın sonundaki **"Solver Güncellemesi: Gurobi"** bölümünde — MEDIUM'daki hikaye (aşağıdaki %0.00 iyileşme) Gurobi ile tamamen değişti.
 
 | Metric | SMALL (120sn) | MEDIUM (180sn) | LARGE |
 |---|---:|---:|---:|
@@ -96,6 +102,8 @@ Bu gözlem, ileride Phase 9'da optimizasyon sonucuyla kıyaslarken **her iki bas
 ## Phase 20 — Stress Test: "Diz Noktası" (Knee Point) Haritalaması
 
 Phase 19'da MEDIUM (8.53sn) ile LARGE (8569sn) arasında devasa bir fark bulunmuştu. Bu fazda, aradaki büyüklüklerde (25, 30, 35, 40, 45 makine — orantılı iş sayılarıyla) **sadece model kurulum süresi** ölçülerek darboğazın tam olarak nerede başladığı haritalandı. Her nokta için 300 saniyelik sert bir zaman sınırı kullanıldı (bir nokta zaten zaman aşımına uğrarsa daha büyüğü denenmedi — monoton artış zaten biliniyor).
+
+> **Solver'dan bağımsız, hâlâ geçerli**: Buradaki tüm süreler model KURULUMU (Pyomo, solver çağrılmadan önce) — Gurobi'ye geçiş bu darboğazı değiştirmez, çünkü sorun hiç solver'a ulaşmıyor. LARGE'ı Gurobi ile yeniden test etmedim (bkz. `docs/decision-log.md`, Solver Değişikliği kaydı) — 2.4 saati boşa harcamanın anlamı yok, sonuç aynı çıkardı.
 
 | Makine / İş | Operasyon | Binary Değişken | Kısıt | Model Kurulum Süresi |
 |---:|---:|---:|---:|---:|
@@ -122,3 +130,47 @@ Phase 19'da MEDIUM (8.53sn) ile LARGE (8569sn) arasında devasa bir fark bulunmu
 **Pratik sonuç**: Mevcut formülasyonla sistem **~40 makine / ~700 işe kadar** (build ~2.5 dakika) makul sınırlar içinde kalıyor; 45 makineden itibaren pratik olarak kullanılamaz hale geliyor. Bu, bitirme projesi raporunun "Limitations" bölümü için net, sayısal bir sınır.
 
 **Seçenek B notu**: Kullanıcıyla, bu sınırı aşmak için C3'ü farklı bir formülasyonla (ör. zaman-indeksli) yeniden kurmanın (Seçenek B) mümkün olduğu konuşuldu; kullanıcı bunu **projenin sonuna, çekirdek sistem tamamlandıktan sonra** değerlendirmeye bıraktı (bkz. `docs/decision-log.md`). Bu doküman güncel formülasyonun sınırlarını olduğu gibi, gizlemeden yansıtıyor.
+
+## Solver Güncellemesi: Gurobi (2026-09-18/19)
+
+Kullanıcı 2026-09-18'de akademik bir Gurobi lisansı edindi; aktif solver HiGHS'ten Gurobi'ye geçirildi (bkz. `docs/decision-log.md` "Solver Değişikliği: HiGHS -> Gurobi"). Aşağıdaki sayılar, yukarıdaki HiGHS ölçümleriyle **aynı ayarlarla** (aynı `time_limit_seconds`, aynı stage, aynı SEED=42 veri) yeniden çalıştırılıp ölçüldü — 2026-09-19'da gerçekten çalıştırılmış, uydurulmamış sonuçlar.
+
+### SMALL — "final" hedef, 120sn (Phase 9 ile aynı ayar)
+
+| | HiGHS (yukarıdaki Phase 9) | **Gurobi** |
+|---|---:|---:|
+| Solver durumu | time limit, gap %5.33–10.42 (çalıştırmaya göre değişken) | **optimal, gap %0** |
+| Total Cost ($) | 11.659,12 – 12.370,73 arası | **11.369,07** |
+| FCFS'e göre iyileşme | %5,22 – %10,67 | **%12,89** |
+| Toplam çalışma süresi | 120 sn'nin tamamı kullanılıyordu | **~15 sn'de bitti** (kanıtlanmış optimal) |
+
+Gurobi, HiGHS'in hiçbir zaman kanıtlayamadığı optimalliği ~15 saniyede kanıtladı.
+
+### MEDIUM — "final" hedef, 180sn (Phase 19 ile aynı ayar) — en çarpıcı fark
+
+| | HiGHS (yukarıdaki Phase 19) | **Gurobi** |
+|---|---:|---:|
+| Solver durumu | time limit, **gap %74,95** | time limit, **gap %7,01** |
+| FCFS'e göre iyileşme | **%0,00** (warm-start'tan hiç ilerleyemedi) | **%11,81** |
+| Total Cost ($) | 29.366,39 (FCFS ile aynı) | **25.898,96** |
+
+HiGHS ile MEDIUM'da optimizasyonun pratikte hiçbir faydası yoktu. Aynı 180 saniyede Gurobi ile gap %7'ye iniyor ve gerçek, anlamlı bir iyileşme ortaya çıkıyor — Gurobi'ye geçiş MEDIUM ölçeğini "kullanılamaz" durumdan "kullanılabilir" duruma getirdi.
+
+### Predict→Optimize (ML tahminiyle, gerçekçi senaryo), SMALL, 120sn (Phase 11 / Final Demo ile aynı ayar)
+
+| | HiGHS (Final Demo) | **Gurobi** |
+|---|---:|---:|
+| Solver durumu | time limit, gap %6,35 | **optimal, gap %0** |
+| Total Cost ($) | ~12.482 | **11.995,72** |
+| FCFS'e göre iyileşme | %4,36 | **%8,09** |
+| Çalışma süresi | 120sn'nin tamamı | **~12 sn** |
+
+### LARGE — değişmedi, yeniden test edilmedi (bilerek)
+
+Phase 19-20'deki darboğaz, **solver hiç devreye girmeden**, salt Pyomo'nun modeli kurma aşamasında oluşuyor (yukarıdaki notlara bkz.) — bu adım hangi solver kullanıldığından tamamen bağımsız. 2,4 saati boşa harcayıp yeniden ölçmedim; sonuç aynı çıkardı. LARGE'ı gerçekten çözülebilir hale getirmek Phase 20'de konuşulup projenin sonuna bırakılan Seçenek B'yi (C3'ün farklı bir matematiksel formülasyonu) gerektiriyor — solver seçimiyle ilgisi yok.
+
+### Özet
+
+- **SMALL**: zaten iyi çalışıyordu, şimdi kanıtlanmış optimal + %12,89 (eskiden %10,67 tavan).
+- **MEDIUM**: HiGHS ile fiilen ölü bir özellikti (%0 iyileşme), Gurobi ile gerçek değer üretiyor (%11,81).
+- **LARGE**: solver'dan bağımsız bir mimari sınır, değişmedi.

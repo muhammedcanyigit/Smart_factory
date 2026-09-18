@@ -2,6 +2,13 @@
 
 Bu dosya, projede yapılan önemli değişikliklerin kaydını tutar. En yeni değişiklik en üstte. Format ve güncelleme kuralı için bkz. [CLAUDE.md](CLAUDE.md).
 
+## 2026-09-19 — `docs/experiments.md` güncel Gurobi sonuçlarıyla güncellendi
+
+- Phase 9/11/15/19'daki tablo başlıklarına "*HiGHS ile ölçüldü, tarihi kayıt*" notu eklendi — eski sayılar silinmedi/değiştirilmedi (CLAUDE.md kural 3), sadece hangi solver ile ölçüldüğü artık açık.
+- Yeni bölüm: **"Solver Güncellemesi: Gurobi (2026-09-18/19)"** — SMALL final (120sn), MEDIUM final (180sn) ve Predict→Optimize SMALL (120sn) aynı ayarlarla Gurobi ile yeniden ölçüldü ve HiGHS'le yan yana tablolandı.
+- En çarpıcı bulgu: MEDIUM'da HiGHS %0,00 iyileşme (gap %74,95, warm-start'tan hiç ilerleyemiyordu) veriyordu; Gurobi aynı 180 saniyede gap %7,01'e inip **%11,81 gerçek iyileşme** buluyor — Gurobi'ye geçiş MEDIUM'u "kullanılamaz"dan "kullanılabilir"e taşıdı.
+- LARGE bilerek yeniden test edilmedi — darboğaz (Phase 19-20) solver'dan bağımsız, Pyomo'nun model kurma aşamasında; bu doküma da bu gerekçe açıkça not edildi.
+
 ## 2026-09-19 — API hata yönetimi eklendi
 
 - `backend/api/routes.py`: `/overview`, `/baseline`, `/optimize` artık geçersiz `size` değerini (`small/medium/large` dışında) `400` ile reddediyor (öncesinde config'teki `presets` sözlüğünde `KeyError` fırlatıp çıplak bir `500` veriyordu). `/optimize`'daki asıl pipeline çağrısı da try/except ile sarmalandı — beklenmeyen bir hata artık okunabilir bir `{"detail": "..."}` mesajıyla `500` dönüyor, ham stack trace sızmıyor.
