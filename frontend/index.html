@@ -220,6 +220,18 @@ function renderBarChart(before, after, beforeLabel, afterLabel, targetId = "char
   }, { displayModeBar: false, responsive: true });
 }
 
+async function readJsonOrThrow(res) {
+  // Backend artık hata durumlarında (400/500) da JSON döner (`{"detail": "..."}`,
+  // bkz. docs/decision-log.md) — önceden bu kontrol yoktu, bir hata durumunda
+  // "result.feasible" gibi olmayan bir alana erişilip anlamsız/kriptik bir
+  // mesaj gösteriliyordu.
+  const data = await res.json().catch(() => ({}));
+  if (!res.ok) {
+    throw new Error(data.detail || `HTTP ${res.status}`);
+  }
+  return data;
+}
+
 async function runOptimize() {
   const size = document.getElementById("size").value;
   const timeLimit = parseInt(document.getElementById("timeLimit").value, 10);
@@ -238,8 +250,8 @@ async function runOptimize() {
         body: JSON.stringify({ size, time_limit_seconds: timeLimit }),
       }),
     ]);
-    const baseline = await baselineRes.json();
-    const result = await optimizeRes.json();
+    const baseline = await readJsonOrThrow(baselineRes);
+    const result = await readJsonOrThrow(optimizeRes);
 
     if (!result.feasible) {
       document.getElementById("optimizeStatus").innerHTML = `<span class="error">Optimizasyon ÇÖZÜMSÜZ: ${result.metrics.solver_status}</span>`;
@@ -310,7 +322,7 @@ async function runScenario() {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ size, time_limit_seconds: timeLimit, scenario_name: scenario, scenario_kwargs }),
     });
-    const result = await res.json();
+    const result = await readJsonOrThrow(res);
 
     if (!result.feasible) {
       document.getElementById("scenarioTable").innerHTML = "";

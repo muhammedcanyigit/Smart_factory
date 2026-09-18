@@ -56,3 +56,16 @@ def test_optimize_response_is_json_serializable_and_feasible():
 def test_optimize_rejects_unknown_scenario():
     res = client.post("/api/optimize", json={"size": "small", "scenario_name": "not_a_real_scenario"})
     assert res.status_code == 400
+
+
+def test_optimize_rejects_unknown_size():
+    """Öncesinde `size` hiç doğrulanmıyordu — geçersiz bir değer, config'teki
+    presets sözlüğünde KeyError'a (çıplak 500) yol açardı."""
+    res = client.post("/api/optimize", json={"size": "huge"})
+    assert res.status_code == 400
+    assert "detail" in res.json()
+
+
+def test_overview_rejects_unknown_size():
+    res = client.get("/api/overview?size=huge")
+    assert res.status_code == 400

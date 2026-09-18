@@ -20,34 +20,52 @@ from simulation.scenarios import SCENARIOS
 
 router = APIRouter()
 CONFIG_PATH = "config/config.yaml"
+VALID_SIZES = {"small", "medium", "large"}
 
 
 def _config() -> dict:
     return yaml.safe_load(open(CONFIG_PATH))
 
 
+def _validate_size(size: str) -> None:
+    if size not in VALID_SIZES:
+        raise HTTPException(400, f"Bilinmeyen dataset boyutu: {size!r} (seçenekler: {sorted(VALID_SIZES)})")
+
+
 @router.get("/overview")
 def get_overview(size: str = "small"):
-    config = _config()
-    horizon_hours = config["dataset"]["horizon_hours"]
-    dataset = generate_dataset(size=size, config_path=CONFIG_PATH)
-    twin = DigitalTwin(dataset, horizon_hours)
-    return {"size": size, "snapshot": twin.snapshot()}
+    _validate_size(size)
+    try:
+        config = _config()
+        horizon_hours = config["dataset"]["horizon_hours"]
+        dataset = generate_dataset(size=size, config_path=CONFIG_PATH)
+        twin = DigitalTwin(dataset, horizon_hours)
+        return {"size": size, "snapshot": twin.snapshot()}
+    except HTTPException:
+        raise
+    except Exception as exc:
+        raise HTTPException(500, f"Fabrika durumu okunurken hata oluştu: {exc}") from exc
 
 
 @router.get("/baseline")
 def get_baseline(size: str = "small"):
-    config = _config()
-    horizon_hours = config["dataset"]["horizon_hours"]
-    dataset = generate_dataset(size=size, config_path=CONFIG_PATH)
-    fcfs_schedule = run_baseline(dataset, strategy="fcfs")
-    metrics = summarize(fcfs_schedule, dataset, horizon_hours)
+    _validate_size(size)
+    try:
+        config = _config()
+        horizon_hours = config["dataset"]["horizon_hours"]
+        dataset = generate_dataset(size=size, config_path=CONFIG_PATH)
+        fcfs_schedule = run_baseline(dataset, strategy="fcfs")
+        metrics = summarize(fcfs_schedule, dataset, horizon_hours)
 
-    from optimization.comparison import compute_total_cost
+        from optimization.comparison import compute_total_cost
 
-    weights = config["optimization"]["objective_weights"]
-    metrics["total_cost"] = round(compute_total_cost(fcfs_schedule, dataset, horizon_hours, weights), 2)
-    return metrics
+        weights = config["optimization"]["objective_weights"]
+        metrics["total_cost"] = round(compute_total_cost(fcfs_schedule, dataset, horizon_hours, weights), 2)
+        return metrics
+    except HTTPException:
+        raise
+    except Exception as exc:
+        raise HTTPException(500, f"Baseline hesaplanırken hata oluştu: {exc}") from exc
 
 
 @router.get("/scenarios")
@@ -64,15 +82,23 @@ class OptimizeRequest(BaseModel):
 
 @router.post("/optimize")
 def optimize(req: OptimizeRequest):
+    _validate_size(req.size)
     if req.scenario_name and req.scenario_name not in SCENARIOS:
         raise HTTPException(400, f"Bilinmeyen senaryo: {req.scenario_name}")
 
-    result = run_pipeline(
-        size=req.size,
-        time_limit_seconds=req.time_limit_seconds,
-        scenario_name=req.scenario_name,
-        scenario_kwargs=req.scenario_kwargs,
-    )
+    try:
+        result = run_pipeline(
+            size=req.size,
+            time_limit_seconds=req.time_limit_seconds,
+            scenario_name=req.scenario_name,
+            scenario_kwargs=req.scenario_kwargs,
+        )
+    except Exception as exc:
+        # Beklenmeyen bir hata (ör. eksik bir bağımlılık, bozuk bir senaryo
+        # parametresi) çıplak bir 500/stack trace olarak sızmasın diye burada
+        # yakalanıp okunabilir bir mesaja çevriliyor — frontend bunu
+        # `detail` alanından okuyup gösterebilir (bkz. docs/decision-log.md).
+        raise HTTPException(500, f"Optimizasyon çalıştırılırken hata oluştu: {exc}") from exc
 
     schedule = result.get("schedule")
     result["schedule"] = schedule.to_dict(orient="records") if schedule is not None else None

@@ -2,6 +2,13 @@
 
 Bu dosya, projede yapılan önemli değişikliklerin kaydını tutar. En yeni değişiklik en üstte. Format ve güncelleme kuralı için bkz. [CLAUDE.md](CLAUDE.md).
 
+## 2026-09-19 — API hata yönetimi eklendi
+
+- `backend/api/routes.py`: `/overview`, `/baseline`, `/optimize` artık geçersiz `size` değerini (`small/medium/large` dışında) `400` ile reddediyor (öncesinde config'teki `presets` sözlüğünde `KeyError` fırlatıp çıplak bir `500` veriyordu). `/optimize`'daki asıl pipeline çağrısı da try/except ile sarmalandı — beklenmeyen bir hata artık okunabilir bir `{"detail": "..."}` mesajıyla `500` dönüyor, ham stack trace sızmıyor.
+- `frontend/index.html`: `readJsonOrThrow()` eklendi — `fetch` yanıtı `res.ok` değilse (400/500) `detail` mesajını okuyup düzgün bir `Error` fırlatıyor. Öncesinde hata durumunda `result.feasible`/`result.metrics` gibi olmayan bir alana erişilip kriptik bir mesaj (`[object Object]` benzeri) gösteriliyordu.
+- `tests/test_backend.py`'ye 2 yeni test eklendi (`test_optimize_rejects_unknown_size`, `test_overview_rejects_unknown_size`), toplam 31 test.
+- Doğrulama: `pytest tests/` (31/31), Playwright ile happy-path (OPTIMIZE ET → Before/After) regresyon kontrolü — konsol hatası yok, sonuç doğru.
+
 ## 2026-09-19 — Backend/API testleri eklendi (`tests/test_backend.py`, 24 -> 29 test)
 
 - FastAPI `TestClient` ile 5 smoke test eklendi: `/api/overview`, `/api/baseline`, `/api/scenarios`, `/api/optimize` (gerçek SMALL veri setiyle, `time_limit_seconds=10`) ve bilinmeyen senaryo adı için `400` kontrolü.
