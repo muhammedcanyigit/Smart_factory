@@ -13,8 +13,8 @@ scikit-learn
 
 # Optimization
 pyomo
-highspy          # HiGHS solver Python binding'i
-# gurobipy       # opsiyonel, Gurobi lisansı varsa Phase 8'de eklenecek
+gurobipy         # aktif solver (2026-09-18'den itibaren) — akademik/ticari lisans gerektirir
+# highspy        # devre dışı, yedek — lisanssız/ücretsiz alternatif gerekirse geri alınabilir
 
 # Backend
 fastapi

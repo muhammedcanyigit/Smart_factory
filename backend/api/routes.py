@@ -76,8 +76,11 @@ def optimize(req: OptimizeRequest):
 
     schedule = result.get("schedule")
     result["schedule"] = schedule.to_dict(orient="records") if schedule is not None else None
-    # solve_info içindeki ham HighsModelStatus enum'u JSON'a çevrilemiyor —
-    # zaten aynı bilginin okunabilir hali solver_status/model_status_str'de var.
+    # solve_info içindeki ham durum kodu (Gurobi'de int, ama HiGHS aktifken bir
+    # HighsModelStatus enum'uydu ve JSON'a çevrilemiyordu — bkz. Phase 17) burada
+    # zaten çıkarılıyor; aynı bilginin okunabilir hali solver_status/
+    # model_status_str'de var. Pop işlemi, HiGHS'e geri dönülürse yeniden bir
+    # JSON serialization hatası çıkmasın diye kasıtlı olarak korunuyor.
     if result.get("solve_info"):
         result["solve_info"].pop("model_status", None)
     return result

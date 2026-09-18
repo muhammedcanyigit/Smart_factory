@@ -42,4 +42,4 @@ Bu projede yapılan her önemli değişiklik (yeni dosya/modül eklendi, bir pha
 
 ## Teknoloji Stack (özet)
 
-Python, pandas/numpy, scikit-learn (+ gerekirse XGBoost/LightGBM), Pyomo + HiGHS (opsiyonel Gurobi), FastAPI, SQLite (gerekirse PostgreSQL), React veya hafif bir frontend, Plotly. Detay: [docs/project-plan.md](docs/project-plan.md) Bölüm 7.
+Python, pandas/numpy, scikit-learn (+ gerekirse XGBoost/LightGBM), Pyomo + Gurobi (aktif solver, 2026-09-18'den itibaren; HiGHS devre dışı/yedek), FastAPI, SQLite (gerekirse PostgreSQL), React veya hafif bir frontend, Plotly. Detay: [docs/project-plan.md](docs/project-plan.md) Bölüm 7.

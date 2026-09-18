@@ -1,16 +1,20 @@
 """Solver seçimi ve çalıştırma — bkz. docs/project-plan.md Phase 8.
 
-Şimdilik HiGHS destekleniyor; Gurobi kurulu değilse hata vermeden, config'de
-"gurobi" seçilmedikçe hiç devreye girmez.
+2026-09-18: Aktif solver Gurobi'ye geçirildi (kullanıcı akademik Gurobi
+lisansı edindi) — bkz. docs/decision-log.md "Solver Değişikliği: HiGHS ->
+Gurobi". Gerçekte kullanılan yol her zaman `solve_with_warm_start` (aşağıya
+bakınız); bu fonksiyon (`solve`) hâlâ hem "highs" hem "gurobi" adını kabul
+eden basit, warm-start'sız bir alternatif olarak duruyor ama pipeline'ın
+hiçbir yerinden çağrılmıyor.
 
-ÖNEMLİ HATA NOTU (bkz. docs/decision-log.md Phase 7): Pyomo'nun `appsi_highs`
+TARİHSEL NOT (bkz. docs/decision-log.md Phase 7, artık HiGHS aktif değilken
+de geçerliliğini koruyan bir hata ayıklama kaydı): Pyomo'nun `appsi_highs`
 arayüzü, solver zaman sınırına ulaşıp HİÇBİR uygun (feasible) çözüm
-bulamadığında sessizce sonsuza kadar takılı kalıyor (gerçek bir Pyomo/APPSI
-hatası — native highspy ve Pyomo'nun yeni `highs` arayüzü bu durumda düzgün
-davranıyor). Bu yüzden burada bilinçli olarak `appsi_highs` DEĞİL, Pyomo'nun
-yeni `pyomo.contrib.solver` tabanlı `highs` arayüzü kullanılıyor;
-`load_solutions=False` ile çözüm bulunamama durumu istisna fırlatmadan,
-kontrollü şekilde ele alınıyor.
+bulamadığında sessizce sonsuza kadar takılı kalıyordu (gerçek bir Pyomo/APPSI
+hatası). Bu yüzden HiGHS aktifken burada bilinçli olarak `appsi_highs` DEĞİL,
+Pyomo'nun `pyomo.contrib.solver` tabanlı `highs` arayüzü kullanılmıştı;
+`load_solutions=False` ile çözüm bulunamama durumu istisna fırlatmadan
+ele alınıyordu. Gurobi'nin Pyomo arayüzünde bu sınıfta bilinen bir hata yok.
 """
 
 from __future__ import annotations
@@ -18,7 +22,7 @@ from __future__ import annotations
 import pyomo.environ as pyo
 
 
-def solve(model: pyo.ConcreteModel, solver_name: str = "highs", time_limit_seconds: int = 300):
+def solve(model: pyo.ConcreteModel, solver_name: str = "gurobi", time_limit_seconds: int = 300):
     if solver_name == "highs":
         opt = pyo.SolverFactory("highs")
         results = opt.solve(
@@ -48,10 +52,10 @@ def load_solution(model: pyo.ConcreteModel, results) -> None:
 
 
 def solve_with_warm_start(model: pyo.ConcreteModel, data: dict, baseline_schedule, time_limit_seconds: int = 300):
-    """ÖNERİLEN yol (bkz. docs/decision-log.md Phase 8): baseline planını warm-start
-    olarak verip native highspy ile çözer. appsi_highs'ın warm-start ile de
-    güvenilmez çıkması üzerine bu yol tercih ediliyor — SMALL'da 300+ sn'den
-    0.34 sn'ye düşüren, kanıtlanmış çözüm budur.
+    """TEK gerçekten kullanılan yol — bkz. docs/decision-log.md Phase 8 (mimari)
+    ve "Solver Değişikliği: HiGHS -> Gurobi" (2026-09-18, aktif motor). Baseline
+    planını warm-start olarak verip `optimization/native_solver.py::solve_native`
+    ile (bugün: gurobipy) çözer.
     """
     from optimization.native_solver import solve_native
     from optimization.warmstart import apply_warm_start

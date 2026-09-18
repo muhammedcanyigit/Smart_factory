@@ -17,7 +17,7 @@ dataset:
       jobs: 1000
 
 optimization:
-  solver: highs         # highs | gurobi
+  solver: gurobi         # gurobi (aktif, 2026-09-18'den itibaren) | highs (devre dışı, yedek)
   time_limit_seconds: 300
   big_m: 168             # = horizon_hours; ispatlanabilir güvenli minimum (bkz. docs/mathematical-model.md Bölüm 5, Phase 8 revizyonu). Önceki değer 336 idi.
   objective_weights:     # Gerekçe: docs/mathematical-model.md Bölüm 6.4 — varsayılan ($/saat) katsayılar, Phase 19-20'de duyarlılık analizi yapılacak

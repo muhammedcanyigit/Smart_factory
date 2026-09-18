@@ -2,6 +2,14 @@
 
 Bu dosya, projede yapılan önemli değişikliklerin kaydını tutar. En yeni değişiklik en üstte. Format ve güncelleme kuralı için bkz. [CLAUDE.md](CLAUDE.md).
 
+## 2026-09-18 — Solver değişikliği: HiGHS -> Gurobi
+
+- Kullanıcı akademik Gurobi lisansı edindi; aktif solver HiGHS'ten Gurobi'ye geçirildi. `optimization/native_solver.py` `highspy` yerine `gurobipy` kullanacak şekilde yeniden yazıldı — mimari aynı kaldı (Pyomo sadece model kurar, çözüm doğrudan native kütüphaneye devredilir, warm-start isim eşlemesiyle aktarılır).
+- Yan iyileştirme: eski kod, tüm çağrılar arasında paylaşılan sabit bir geçici dosya (`/tmp/_native_solve_model.mps`) kullanıyordu — eşzamanlı iki istek (ör. dashboard'da art arda iki `/optimize` çağrısı) birbirinin model dosyasını bozabilirdi. Yeni kod her çağrı için `tempfile` ile benzersiz bir dosya üretip işi bitince siliyor.
+- Yan iyileştirme: "feasible çözüm var mı" kontrolü artık HiGHS'teki gibi durum string'ine bakıp tahmin etmiyor, doğrudan Gurobi'nin `SolCount` bilgisine dayanıyor (`has_solution` alanı) — daha kesin bir ayrım.
+- `config/config.yaml` (`solver: gurobi`), `requirements.txt` (`gurobipy` aktif, `highspy` yorum satırına alındı), `CLAUDE.md` (teknoloji stack), `docs/architecture.md` (solver katmanı bölümü) güncellendi. HiGHS kodu silinmedi, devre dışı/yedek olarak duruyor.
+- Doğrulama: `pytest tests/` (24/24), gerçek SMALL veri setinde `optimization/comparison.py` (60 sn'de kanıtlanmış optimal, gap %0 — HiGHS'in hiç ulaşamadığı bir sonuç) ve FastAPI `TestClient` ile `/api/optimize` uçtan uca test edildi.
+
 ## 2026-09-07 — Final Demo: Proje 24/24 tamamlandı
 
 - `docs/final-demo.md` + `docs/demo-screenshots/` (5 görsel) eklendi — dashboard, Playwright ile orijinal "Final Product" akışının (15 adım) tamamı boyunca sürüldü, konsol hatası yok.
