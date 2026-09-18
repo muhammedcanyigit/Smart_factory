@@ -24,7 +24,7 @@ import yaml
 from baseline.metrics import summarize
 from baseline.scheduler import run_baseline
 from data_generator.generator import HORIZON_START, generate_dataset
-from ml.prediction import load_model
+from ml.prediction import load_or_train_model
 from ml.training import CATEGORICAL_FEATURES, NUMERIC_FEATURES
 from optimization.comparison import compute_total_cost
 from optimization.model import build_model
@@ -105,7 +105,7 @@ def run_predict_optimize(
     if dataset is None:
         dataset = generate_dataset(size=size, config_path=config_path)
 
-    ml_model = load_model(f"ml/models/processing_time_{size}.joblib")
+    ml_model = load_or_train_model(size=size, task="processing_time", config_path=config_path)
     operations_predicted = predict_processing_times(ml_model, dataset)
 
     dataset_predicted = dict(dataset)

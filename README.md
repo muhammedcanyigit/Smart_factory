@@ -27,6 +27,8 @@ uvicorn backend.main:app --reload
 
 Tarayıcıda [http://127.0.0.1:8000/](http://127.0.0.1:8000/) — "Fabrikayı Yükle", "OPTIMIZE ET" ve What-If senaryolarını buradan deneyebilirsin.
 
+**Not (ML modelleri)**: `ml/models/*.joblib` reproducible oldukları için `.gitignore`'da — taze bir `git clone` sonrası bu dosyalar diskte yoktur. Bunu elle çözmene gerek yok: `ml/predict_optimize.py::run_predict_optimize` (dolayısıyla dashboard'daki "OPTIMIZE ET"), seçtiğin dataset boyutu için kayıtlı bir model bulamazsa onu o an eğitip `ml/models/`'e kaydediyor (`ml/prediction.py::load_or_train_model`) — bu yüzden ilk çalıştırma birkaç saniye daha uzun sürebilir, sonrakiler kayıtlı modeli kullanır. İstersen önceden elle eğitmek için: `python -m ml.prediction --size small --task processing_time` (ve `--task energy_consumption`, istediğin boyutlar için).
+
 ## Testleri Çalıştırma
 
 ```bash

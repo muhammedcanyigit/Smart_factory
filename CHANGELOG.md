@@ -2,6 +2,13 @@
 
 Bu dosya, projede yapılan önemli değişikliklerin kaydını tutar. En yeni değişiklik en üstte. Format ve güncelleme kuralı için bkz. [CLAUDE.md](CLAUDE.md).
 
+## 2026-09-19 — Taze `git clone` sonrası dashboard artık çökmüyor (ML modeli self-healing)
+
+- Sorun: `ml/models/*.joblib` reproducible oldukları için `.gitignore`'da — taze bir clone sonrası bu dosyalar diskte yok. `ml/predict_optimize.py::run_predict_optimize` bunların var olduğunu varsayıyordu, yoksa `FileNotFoundError` fırlatıp dashboard'da yakalanmamış bir hataya yol açıyordu.
+- Çözüm: `ml/prediction.py::load_or_train_model` eklendi — kayıtlı model dosyası yoksa, o boyut/görev için modeli o an eğitip diske kaydedip döner. `run_predict_optimize` artık bunu kullanıyor. `train_and_save_best_model` yardımcı fonksiyonu, `__main__` (elle eğitim CLI'si) ile bu yeni fonksiyon arasında RMSE'ye göre en iyi modeli seçme mantığını paylaşıyor (kod tekrarı yok).
+- `README.md`'ye bu davranışı açıklayan bir not eklendi (elle ön-eğitim artık zorunlu değil, opsiyonel).
+- Doğrulama: `ml/models/processing_time_small.joblib` geçici olarak kaldırılıp pipeline çalıştırıldı — model kendini eğitip aynı doğru sonucu (`total_cost=11995.72`, önceki ölçümle birebir aynı) üretti. `pytest tests/` (24/24) tekrar geçti.
+
 ## 2026-09-18 — Solver değişikliği: HiGHS -> Gurobi
 
 - Kullanıcı akademik Gurobi lisansı edindi; aktif solver HiGHS'ten Gurobi'ye geçirildi. `optimization/native_solver.py` `highspy` yerine `gurobipy` kullanacak şekilde yeniden yazıldı — mimari aynı kaldı (Pyomo sadece model kurar, çözüm doğrudan native kütüphaneye devredilir, warm-start isim eşlemesiyle aktarılır).

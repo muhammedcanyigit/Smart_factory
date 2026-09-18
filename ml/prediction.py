@@ -42,20 +42,43 @@ def load_model(path: str):
     return joblib.load(path)
 
 
+def _model_path(size: str, task: str) -> str:
+    return f"ml/models/{task}_{size}.joblib"
+
+
+def train_and_save_best_model(size: str, task: str = "processing_time", config_path: str = "config/config.yaml"):
+    """Modeli eğitir, RMSE'ye göre en iyisini seçip diske kaydeder; (model, results,
+    feature_table, best_model_name) döner. `__main__` ve `load_or_train_model` bu
+    seçim mantığını paylaşır."""
+    models, results, feature_table = run_training_pipeline(size=size, task=task, config_path=config_path)
+    best_model_name = results["rmse"].idxmin()
+    save_model(models[best_model_name], _model_path(size, task))
+    return models[best_model_name], results, feature_table, best_model_name
+
+
+def load_or_train_model(size: str, task: str = "processing_time", config_path: str = "config/config.yaml"):
+    """Kaydedilmiş model dosyası varsa onu yükler. Yoksa (ör. taze bir `git clone`
+    sonrası — `.joblib` dosyaları reproducible oldukları için `.gitignore`'da,
+    repoda hiç yoktur, bkz. docs/decision-log.md) modeli o an eğitip diske
+    kaydeder, sonra döner. Böylece dashboard/pipeline, elle bir ön-eğitim adımı
+    (`python -m ml.prediction --size ... --task ...`) çalıştırılması gerekmeden,
+    seçilen HERHANGİ bir dataset boyutuyla ilk denemede de çalışır."""
+    path = _model_path(size, task)
+    if Path(path).exists():
+        return load_model(path)
+    best_model, _, _, _ = train_and_save_best_model(size=size, task=task, config_path=config_path)
+    return best_model
+
+
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Tahmin modeli eğitimi (işlem süresi / enerji tüketimi)")
     parser.add_argument("--size", choices=["small", "medium", "large"], default="small")
     parser.add_argument("--task", choices=["processing_time", "energy_consumption"], default="processing_time")
     args = parser.parse_args()
 
-    models, results, feature_table = run_training_pipeline(size=args.size, task=args.task)
+    _, results, feature_table, best_model_name = train_and_save_best_model(size=args.size, task=args.task)
 
     print(f"--- {args.task} Tahmini — {args.size.upper()} ({len(feature_table)} operasyon) ---")
     print(results)
-
-    best_model_name = results["rmse"].idxmin()
     print(f"\nEn iyi model (RMSE'ye göre): {best_model_name}")
-
-    save_path = f"ml/models/{args.task}_{args.size}.joblib"
-    save_model(models[best_model_name], save_path)
-    print(f"Kaydedildi: {save_path}")
+    print(f"Kaydedildi: {_model_path(args.size, args.task)}")
